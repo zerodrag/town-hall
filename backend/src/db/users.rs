@@ -1,24 +1,11 @@
-use std::sync::Arc;
-
-use axum::{Json, extract::State, http::StatusCode};
+use color_eyre::eyre::Result;
 use sqlx::{Pool, Postgres};
 
-use crate::models::{CreateUserRequest, User};
+use crate::error::DbError;
 
-pub async fn get_user_count(State(pool): State<Arc<Pool<Postgres>>>) -> Result<String, StatusCode> {
-    let result = sqlx::query_scalar!("SELECT COUNT(*) FROM users")
+pub async fn get_user_count(pool: &Pool<Postgres>) -> Result<i64, DbError> {
+    sqlx::query_scalar!("SELECT COUNT(*) FROM users")
         .fetch_one(&*pool)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-        .ok_or(StatusCode::INTERNAL_SERVER_ERROR)?;
-    Ok(result.to_string())
-}
-
-pub async fn create_user(Json(payload): Json<CreateUserRequest>) -> Json<User> {
-    let new_user = User {
-        id: 1,
-        github_id: payload.github_id,
-        username: payload.username,
-    };
-    Json(new_user)
+        .await?
+        .ok_or_else(|| DbError::UnexpectedValue("user count query returned no result"))
 }
