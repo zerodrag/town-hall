@@ -3,16 +3,14 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-pub enum DbError {
-    UnexpectedValue(&'static str),
-    Internal(sqlx::Error),
+pub enum BackendError {
+    Sqlx(sqlx::Error),
 }
 
-impl IntoResponse for DbError {
+impl IntoResponse for BackendError {
     fn into_response(self) -> Response {
         match self {
-            Self::UnexpectedValue(e) => (StatusCode::INTERNAL_SERVER_ERROR, e).into_response(),
-            Self::Internal(ref e) => {
+            Self::Sqlx(ref e) => {
                 // TODO: Log error
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
@@ -24,8 +22,8 @@ impl IntoResponse for DbError {
     }
 }
 
-impl From<sqlx::Error> for DbError {
+impl From<sqlx::Error> for BackendError {
     fn from(err: sqlx::Error) -> Self {
-        Self::Internal(err)
+        Self::Sqlx(err)
     }
 }

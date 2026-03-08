@@ -1,7 +1,7 @@
 CREATE TABLE users (
-    id            UUID        NOT NULL DEFAULT uuidv7() PRIMARY KEY,
+    id            BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    github_id     BIGINT      NOT NULL UNIQUE,
     username      TEXT        NOT NULL UNIQUE,
-    password      TEXT        NOT NULL,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
     last_modified TIMESTAMPTZ NOT NULL DEFAULT now()
 );

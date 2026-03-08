@@ -12,9 +12,13 @@ pub async fn start_server() -> Result<()> {
 
     dotenvy::dotenv()?;
 
-    let app = Router::new().nest("/api", router::api_router().await?);
+    let pool = db::init().await?;
+    println!("> db init complete");
+
+    let app = Router::new().nest("/api", router::api_router(pool).await?);
 
     let listener = TcpListener::bind("0.0.0.0:3000").await?;
+    println!("> serving on {}/api", listener.local_addr().unwrap());
     axum::serve(listener, app).await?;
 
     Ok(())

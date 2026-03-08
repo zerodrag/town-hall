@@ -4,16 +4,15 @@ use axum::{
     routing::{get, post},
 };
 use color_eyre::eyre::Result;
-use std::sync::Arc;
+use sqlx::PgPool;
 
-use crate::{db, handlers::*};
+use crate::handlers::*;
 
-pub async fn api_router() -> Result<Router> {
-    let shared_state = Arc::new(db::init().await?);
+pub async fn api_router(pool: PgPool) -> Result<Router> {
     let router = Router::new()
         .route("/create-user", post(create_user))
         .route("/user-count", get(get_user_count))
         .route("/health", get(|| async { StatusCode::OK }))
-        .with_state(shared_state);
+        .with_state(pool);
     Ok(router)
 }

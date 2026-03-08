@@ -1,15 +1,13 @@
-use std::sync::Arc;
-
 use axum::{Json, extract::State};
-use sqlx::{Pool, Postgres};
+use sqlx::PgPool;
 
 use crate::{
     db,
-    error::DbError,
+    error::BackendError,
     models::{CreateUserRequest, User},
 };
 
-pub async fn get_user_count(State(pool): State<Arc<Pool<Postgres>>>) -> Result<String, DbError> {
+pub async fn get_user_count(State(pool): State<PgPool>) -> Result<String, BackendError> {
     db::get_user_count(&pool).await.map(|n| n.to_string())
 }
 
