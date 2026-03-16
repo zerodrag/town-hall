@@ -7,15 +7,3 @@ edition = "2024"
 
 [dependencies]
 axum = "0.8"
-color-eyre = "0.6"
-dotenvy = "0.15"
-serde = { version = "1.0", features = ["derive"] }
-serde_with = "3.17"
-specta = { version = "=2.0.0-rc.23", features = ["collect", "derive"] }
-specta-typescript = "0.0.10"
-sqlx = { version = "0.8", features = [
-  "postgres",
-  "runtime-tokio",
-  "tls-rustls-aws-lc-rs"
-] }
-tokio = { version = "1.50", features = ["full"] }
