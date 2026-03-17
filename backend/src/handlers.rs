@@ -1,4 +1,10 @@
-use axum::{http::StatusCode, response::IntoResponse};
+mod user;
+pub use user::*;
+
+use axum::{
+    http::{StatusCode, Uri},
+    response::IntoResponse,
+};
 use tokio::signal;
 
 pub async fn hello_world() -> impl IntoResponse {
@@ -21,7 +27,7 @@ pub async fn health() -> impl IntoResponse {
     )
 }
 
-pub async fn fallback(uri: axum::http::Uri) -> impl IntoResponse {
+pub async fn fallback(uri: Uri) -> impl IntoResponse {
     (StatusCode::NOT_FOUND, uri.to_string())
 }
 
