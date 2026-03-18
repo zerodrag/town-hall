@@ -1,6 +1,0 @@
-CREATE TABLE IF NOT EXISTS users (
-    user_id      INT         PRIMARY KEY GENERATED ALWAYS AS IDENTITY CHECK (user_id > 0),
-    github_id    INT         NOT NULL UNIQUE,
-    display_name VARCHAR(50) NOT NULL,
-    created_at   TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-)
