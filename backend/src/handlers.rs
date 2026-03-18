@@ -1,5 +1,7 @@
 mod user;
 pub use user::*;
+mod quest;
+pub use quest::*;
 
 use axum::{
     http::{StatusCode, Uri},

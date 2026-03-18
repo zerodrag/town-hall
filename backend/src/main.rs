@@ -29,6 +29,7 @@ fn app(state: Arc<Database>) -> axum::Router {
         .route("/health", get(health))
         .route("/users", post(create_user))
         .route("/users/{id}", get(get_user_from_id))
+        .route("/quests/{id}", get(get_quest_from_id))
         .with_state(state);
     axum::Router::new().fallback(fallback).nest("/api", api)
 }
