@@ -9,34 +9,28 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::*;
 
-use crate::Database;
+use crate::AppState;
 
 #[derive(FromRow, Serialize, Deserialize)]
 pub struct Quest {
-    quest_id: i32,
-    poster_id: i32,
+    quest_id: i64,
+    poster_id: i64,
     title: String,
     description: String,
     created_at: time::OffsetDateTime,
 }
 
 pub async fn get_quest_from_id(
-    Path(quest_id): Path<u32>,
-    State(db): State<Arc<Database>>,
+    Path(quest_id): Path<i64>,
+    State(db): State<Arc<AppState>>,
 ) -> Result<Json<Quest>, impl IntoResponse> {
-    let Ok(quest_id_normalized): Result<i32, _> = quest_id.try_into() else {
-        return Err((
-            StatusCode::BAD_REQUEST,
-            "Invalid ID: Quest ID must be a signed 32-bit integer",
-        ));
-    };
     let result = sqlx::query_as::<_, Quest>(
         "SELECT quest_id, poster_id, title, description, created_at \
         FROM quests \
         WHERE quest_id=$1",
     )
-    .bind(quest_id_normalized)
-    .fetch_one(&db.pool)
+    .bind(quest_id)
+    .fetch_one(&db.db_pool)
     .await;
     match result {
         Ok(quest) => Ok(Json(quest)),

@@ -39,7 +39,6 @@
 		"vite": "^7.3.1"
 	},
 	"dependencies": {
-		"better-auth": "^1.5.5",
 		"pg": "^8.20.0"
 	}
 }

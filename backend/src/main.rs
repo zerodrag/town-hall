@@ -1,9 +1,9 @@
-mod database;
 mod handlers;
+mod state;
 
 use std::sync::Arc;
 
-pub use database::Database;
+pub use state::AppState;
 
 use anyhow::Result;
 use axum::routing::*;
@@ -14,7 +14,8 @@ use handlers::*;
 async fn main() -> Result<()> {
     dotenvy::dotenv()?; // Export .env
     tracing_subscriber::fmt::init(); // Print tracing::_
-    let state = Arc::new(Database::new().await?);
+
+    let state = Arc::new(AppState::new().await?);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
     axum::serve(listener, app(state))
@@ -23,13 +24,14 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-fn app(state: Arc<Database>) -> axum::Router {
-    let api = axum::Router::new()
-        .route("/", get(hello_world))
-        .route("/health", get(health))
-        .route("/users", post(create_user))
-        .route("/users/{id}", get(get_user_from_id))
-        .route("/quests/{id}", get(get_quest_from_id))
-        .with_state(state);
-    axum::Router::new().fallback(fallback).nest("/api", api)
+fn app(state: Arc<AppState>) -> axum::Router {
+    axum::Router::new()
+        .fallback(fallback)
+        .route("/api", get(hello_world))
+        .route("/api/health", get(health))
+        .route("/api/users/{id}", get(get_user_from_id))
+        .route("/api/quests/{id}", get(get_quest_from_id))
+        .route("/auth/github", get(github_login))
+        .route("/auth/github/callback", get(github_callback))
+        .with_state(state)
 }
