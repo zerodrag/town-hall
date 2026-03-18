@@ -30,8 +30,8 @@ pub async fn github_login(State(state): State<Arc<AppState>>, session: Session) 
 
 #[derive(Deserialize)]
 pub struct AuthRequest {
-    pub code: String,       // Temp code sent by Github, expires in 10 minutes, used to get access token
-    pub csrf_token: String, // Verify if same as before, or else it's tampered / forged
+    pub code: String,  // Temp code sent by Github, expires in 10 minutes, used to get access token
+    pub state: String, // Verify if same as before, or else it's tampered / forged
 }
 
 pub async fn github_callback(
@@ -40,8 +40,15 @@ pub async fn github_callback(
     Query(query): Query<AuthRequest>,
 ) -> Redirect {
     // Check if the received CSRF token is the same as the one we sent
-    let local_token: String = session.get("csrf_token").await.unwrap().unwrap();
-    if local_token != query.csrf_token {
+    let local_state: String = match session.get("csrf_token").await.unwrap() {
+        Some(state) => state,
+        None => {
+            // Log the error and redirect to login
+            tracing::error!("No CSRF token found in session");
+            return Redirect::to("http://localhost:5173/login?error=session_expired");
+        }
+    };
+    if local_state != query.state {
         return Redirect::to("http://localhost:5173/login?error=invalid_csrf_token");
     }
 
@@ -85,7 +92,7 @@ pub async fn github_callback(
         gh_user["email"].as_str().unwrap(),
     );
 
-    let internal_user_id: i64 = sqlx::query_scalar(
+    let internal_user_id: i64 = sqlx::query_scalar!(
         "INSERT INTO users (github_id, display_name, email) \
         VALUES ($1, $2, $3) \
         ON CONFLICT (github_id) \
@@ -93,10 +100,10 @@ pub async fn github_callback(
             display_name = EXCLUDED.display_name, \
             email = EXCLUDED.email \
         RETURNING user_id",
+        github_id,
+        display_name,
+        email
     )
-    .bind(github_id)
-    .bind(display_name)
-    .bind(email)
     .fetch_one(&state.db_pool)
     .await
     .unwrap();
