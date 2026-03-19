@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::{
     Json,
     extract::{Path, State},
@@ -22,7 +20,7 @@ pub struct Quest {
 
 pub async fn get_quest_from_id(
     Path(quest_id): Path<i64>,
-    State(db): State<Arc<AppState>>,
+    State(db): State<AppState>,
 ) -> Result<Json<Quest>, impl IntoResponse> {
     let result = sqlx::query_as::<_, Quest>(
         "SELECT quest_id, poster_id, title, description, created_at \

@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::{
     Json,
     extract::{Path, State},
@@ -21,11 +19,11 @@ pub struct User {
 
 type UserResponse = Result<Json<User>, (StatusCode, &'static str)>;
 
-pub async fn get_user_from_url(Path(user_id): Path<i64>, State(state): State<Arc<AppState>>) -> UserResponse {
+pub async fn get_user_from_url(Path(user_id): Path<i64>, State(state): State<AppState>) -> UserResponse {
     fetch_user_from_id(user_id, state.db_pool.clone()).await
 }
 
-pub async fn get_user_me(session: Session, State(state): State<Arc<AppState>>) -> UserResponse {
+pub async fn get_user_me(session: Session, State(state): State<AppState>) -> UserResponse {
     let Ok(user_id): Result<Option<i64>, _> = session.get("user_id").await else {
         return Err((StatusCode::INTERNAL_SERVER_ERROR, "Session error"));
     };

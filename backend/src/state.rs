@@ -2,11 +2,10 @@ use std::{env, str::FromStr};
 
 use anyhow::Result;
 use oauth2::{
-    AuthUrl, ClientId, ClientSecret, EndpointNotSet, EndpointSet, RedirectUrl,
-    StandardRevocableToken, TokenUrl,
+    AuthUrl, ClientId, ClientSecret, EndpointNotSet, EndpointSet, RedirectUrl, StandardRevocableToken, TokenUrl,
     basic::{
-        BasicClient, BasicErrorResponse, BasicRevocationErrorResponse,
-        BasicTokenIntrospectionResponse, BasicTokenResponse,
+        BasicClient, BasicErrorResponse, BasicRevocationErrorResponse, BasicTokenIntrospectionResponse,
+        BasicTokenResponse,
     },
 };
 use sqlx::{
@@ -27,6 +26,7 @@ type GithubClient = oauth2::Client<
     EndpointSet,
 >;
 
+#[derive(Clone)]
 pub struct AppState {
     pub db_pool: PgPool,
     pub oauth_client: GithubClient,
@@ -44,10 +44,8 @@ impl AppState {
         let gh_client_id = ClientId::new(env::var("GITHUB_CLIENT_ID")?);
         let gh_client_secret = ClientSecret::new(env::var("GITHUB_CLIENT_SECRET")?);
         let gh_auth_url = AuthUrl::new("https://github.com/login/oauth/authorize".to_string())?;
-        let gh_token_url =
-            TokenUrl::new("https://github.com/login/oauth/access_token".to_string())?;
-        let gh_redirect_url =
-            RedirectUrl::new("http://localhost:3000/auth/github/callback".to_string())?;
+        let gh_token_url = TokenUrl::new("https://github.com/login/oauth/access_token".to_string())?;
+        let gh_redirect_url = RedirectUrl::new("http://localhost:3000/auth/github/callback".to_string())?;
         let gh_oauth_client = BasicClient::new(gh_client_id)
             .set_client_secret(gh_client_secret)
             .set_auth_uri(gh_auth_url)

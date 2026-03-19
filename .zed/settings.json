@@ -1,0 +1,23 @@
+{
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "cargo": {
+          "extraEnv": {
+            "SQLX_OFFLINE": "true",
+          },
+        },
+        "server": {
+          "extraEnv": {
+            "SQLX_OFFLINE": "true",
+          },
+        },
+        "runnables": {
+          "extraEnv": {
+            "SQLX_OFFLINE": "true",
+          },
+        },
+      },
+    },
+  },
+}

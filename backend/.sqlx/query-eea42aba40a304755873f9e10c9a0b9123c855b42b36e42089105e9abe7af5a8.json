@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO users (github_id, display_name, email) VALUES ($1, $2, $3) ON CONFLICT (github_id) DO UPDATE SET display_name = EXCLUDED.display_name, email = EXCLUDED.email RETURNING user_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Varchar",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "eea42aba40a304755873f9e10c9a0b9123c855b42b36e42089105e9abe7af5a8"
+}

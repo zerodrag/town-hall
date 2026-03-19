@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::{
     extract::{Query, State},
     response::Redirect,
@@ -11,7 +9,7 @@ use tower_sessions::Session;
 
 use crate::AppState;
 
-pub async fn github_login(State(state): State<Arc<AppState>>, session: Session) -> Redirect {
+pub async fn github_login(State(state): State<AppState>, session: Session) -> Redirect {
     let (pkce_challenge, pkce_verifier) = PkceCodeChallenge::new_random_sha256();
     let (auth_url, csrf_token) = state
         .oauth_client
@@ -35,7 +33,7 @@ pub struct AuthRequest {
 }
 
 pub async fn github_callback(
-    State(state): State<Arc<AppState>>,
+    State(state): State<AppState>,
     session: Session,
     Query(query): Query<AuthRequest>,
 ) -> Redirect {
@@ -111,4 +109,9 @@ pub async fn github_callback(
     session.insert("user_id", internal_user_id).await.unwrap();
 
     Redirect::to("http://localhost:5173/dashboard")
+}
+
+pub async fn logout(session: Session) -> Redirect {
+    session.clear().await;
+    Redirect::to("http://localhost:5173/login")
 }
