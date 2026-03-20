@@ -8,17 +8,17 @@ use crate::handlers::*;
 pub async fn root() -> Result<Router<AppState>> {
     let router = Router::new()
         .fallback(fallback)
-        .nest("/api", api().await?)
+        .route("/", get(hello_world))
+        .route("/health", get(health))
+        .nest("/users", users().await?)
         .nest("/auth", auth().await?);
     Ok(router)
 }
 
-async fn api() -> Result<Router<AppState>> {
+async fn users() -> Result<Router<AppState>> {
     let router = Router::new()
-        .route("/", get(hello_world))
-        .route("/health", get(health))
-        .route("/users/{id}", get(get_user_from_url))
-        .route("/users/me", get(get_user_me));
+        .route("/{id}", get(get_user_from_url))
+        .route("/me", get(get_user_me));
     Ok(router)
 }
 

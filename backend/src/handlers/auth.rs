@@ -43,11 +43,11 @@ pub async fn github_callback(
         None => {
             // Log the error and redirect to login
             tracing::error!("No CSRF token found in session");
-            return Redirect::to("http://localhost:5173/login?error=session_expired");
+            return Redirect::to("http://localhost:5173/?error=session_expired");
         }
     };
     if local_state != query.state {
-        return Redirect::to("http://localhost:5173/login?error=invalid_csrf_token");
+        return Redirect::to("http://localhost:5173/?error=invalid_csrf_token");
     }
 
     // Use oauth2's reqwest here
@@ -84,22 +84,22 @@ pub async fn github_callback(
         .await
         .unwrap();
 
-    let (github_id, display_name, email) = (
+    let (github_id, handle, email) = (
         gh_user["id"].as_i64().unwrap(),
         gh_user["name"].as_str().unwrap(),
         gh_user["email"].as_str().unwrap(),
     );
 
     let internal_user_id: i64 = sqlx::query_scalar!(
-        "INSERT INTO users (github_id, display_name, email) \
+        "INSERT INTO users (github_id, handle, email) \
         VALUES ($1, $2, $3) \
         ON CONFLICT (github_id) \
         DO UPDATE SET \
-            display_name = EXCLUDED.display_name, \
+            handle = EXCLUDED.handle, \
             email = EXCLUDED.email \
         RETURNING user_id",
         github_id,
-        display_name,
+        handle,
         email
     )
     .fetch_one(&state.db_pool)
@@ -108,10 +108,10 @@ pub async fn github_callback(
 
     session.insert("user_id", internal_user_id).await.unwrap();
 
-    Redirect::to("http://localhost:5173/dashboard")
+    Redirect::to("http://localhost:5173/")
 }
 
 pub async fn logout(session: Session) -> Redirect {
     session.clear().await;
-    Redirect::to("http://localhost:5173/login")
+    Redirect::to("http://localhost:5173/")
 }

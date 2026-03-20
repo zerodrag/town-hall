@@ -4,16 +4,21 @@ use axum::{
     http::StatusCode,
 };
 use serde::Serialize;
-use sqlx::{PgPool, prelude::*};
+use serde_with::{DisplayFromStr, serde_as};
+use sqlx::PgPool;
 use tower_sessions::Session;
 
 use crate::AppState;
 
-#[derive(FromRow, Serialize)]
+#[serde_as]
+#[derive(Serialize, specta::Type)]
 pub struct User {
+    #[serde_as(as = "DisplayFromStr")]
     user_id: i64,
+    #[serde_as(as = "DisplayFromStr")]
     github_id: i64,
-    display_name: String,
+    handle: String,
+    #[serde(with = "time::serde::rfc3339")]
     created_at: time::OffsetDateTime,
 }
 
@@ -34,13 +39,13 @@ pub async fn get_user_me(session: Session, State(state): State<AppState>) -> Use
     }
 }
 
-async fn fetch_user_from_id(id: i64, pool: PgPool) -> UserResponse {
+async fn fetch_user_from_id(user_id: i64, pool: PgPool) -> UserResponse {
     let result = sqlx::query_as!(
         User,
-        "SELECT user_id, github_id, display_name, created_at \
+        "SELECT user_id, github_id, handle, created_at \
         FROM users \
         WHERE user_id=$1",
-        id
+        user_id
     )
     .fetch_one(&pool)
     .await;

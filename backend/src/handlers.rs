@@ -9,7 +9,6 @@ use axum::{
     http::{StatusCode, Uri},
     response::IntoResponse,
 };
-use tokio::signal;
 
 pub async fn hello_world() -> impl IntoResponse {
     "Hello, World!"
@@ -33,26 +32,4 @@ pub async fn health() -> impl IntoResponse {
 
 pub async fn fallback(uri: Uri) -> impl IntoResponse {
     (StatusCode::NOT_FOUND, uri.to_string())
-}
-
-/// Shutdown signal, completes when Ctrl + C is pressed or
-/// (on Unix) a termination signal is sent.
-pub async fn shutdown_signal() {
-    let ctrl_c = async { signal::ctrl_c().await.unwrap() };
-
-    #[cfg(unix)]
-    let terminate = async {
-        signal::unix::signal(signal::unix::SignalKind::terminate())
-            .unwrap()
-            .recv()
-            .await;
-    };
-
-    #[cfg(not(unix))]
-    let terminate = std::future::pending::<()>();
-
-    tokio::select! {
-        _ = ctrl_c => {},
-        _ = terminate => {},
-    }
 }
