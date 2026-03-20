@@ -47,11 +47,9 @@ use tower_sessions::{SessionManagerLayer, cookie::SameSite};
 use tower_sessions_sqlx_store::PostgresStore;
 async fn session_layer(db_pool: PgPool) -> Result<SessionManagerLayer<PostgresStore>> {
     let session_store = PostgresStore::new(db_pool);
-    
+
     session_store.migrate().await?;
-    
-    let deletion_task = tokio::task::spawn(session_store.clone().conti)
-    
+
     let layer = SessionManagerLayer::new(session_store).with_same_site(SameSite::Lax);
     Ok(layer)
 }
