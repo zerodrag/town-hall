@@ -16,6 +16,7 @@
 	"devDependencies": {
 		"@eslint/compat": "latest",
 		"@eslint/js": "^9.39.2",
+		"@fontsource-variable/figtree": "^5.2.10",
 		"@fontsource-variable/inter": "^5.2.8",
 		"@internationalized/date": "^3.12.0",
 		"@lucide/svelte": "^0.577.0",

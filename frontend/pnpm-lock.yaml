@@ -24,6 +24,9 @@ importers:
       '@eslint/js':
         specifier: ^9.39.2
         version: 9.39.4
+      '@fontsource-variable/figtree':
+        specifier: ^5.2.10
+        version: 5.2.10
       '@fontsource-variable/inter':
         specifier: ^5.2.8
         version: 5.2.8
@@ -329,6 +332,9 @@ packages:
 
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
+
+  '@fontsource-variable/figtree@5.2.10':
+    resolution: {integrity: sha512-a5Gumbpy3mdd+Yg31g6Qb7CmjYbrfyutJa3bWfP5q8A4GclIOwX7mI+ZuSHsJnw/mHvW6r9oh1AHJcJTIxK4JA==}
 
   '@fontsource-variable/inter@5.2.8':
     resolution: {integrity: sha512-kOfP2D+ykbcX/P3IFnokOhVRNoTozo5/JxhAIVYLpea/UBmCQ/YWPBfWIDuBImXX/15KH+eKh4xpEUyS2sQQGQ==}
@@ -1860,6 +1866,8 @@ snapshots:
       '@floating-ui/utils': 0.2.11
 
   '@floating-ui/utils@0.2.11': {}
+
+  '@fontsource-variable/figtree@5.2.10': {}
 
   '@fontsource-variable/inter@5.2.8': {}
 
