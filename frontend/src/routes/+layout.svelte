@@ -88,7 +88,7 @@
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		{:else}
-			<Button href="http://localhost:3000/auth/github">Log in</Button>
+			<Button size="lg" href="http://localhost:3000/auth/github">Log in</Button>
 		{/if}
 	</div>
 </nav>
