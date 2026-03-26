@@ -1,7 +1,7 @@
 <script lang="ts">
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
-	import { Compass } from '@lucide/svelte';
+	import { Compass, LogIn } from '@lucide/svelte';
 
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -82,13 +82,16 @@
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item>
 						{#snippet child({ props })}
-							<a {...props} href="http://localhost:3000/auth/logout">Log out</a>
+							<a {...props} href="http://localhost:3000/auth/logout">Sign out</a>
 						{/snippet}
 					</DropdownMenu.Item>
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		{:else}
-			<Button size="lg" href="http://localhost:3000/auth/github">Log in</Button>
+			<Button size="lg" href="http://localhost:3000/auth/github">
+				<LogIn />
+				<span>Sign in</span>
+			</Button>
 		{/if}
 	</div>
 </nav>
