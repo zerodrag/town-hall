@@ -18,7 +18,8 @@ pub async fn root() -> Result<Router<AppState>> {
 async fn users() -> Result<Router<AppState>> {
     let router = Router::new()
         .route("/{id}", get(get_user_from_url))
-        .route("/me", get(get_user_me));
+        .route("/me", get(get_user_me))
+        .route("/resolve/{handle}", get(resolve_handle_to_id));
     Ok(router)
 }
 

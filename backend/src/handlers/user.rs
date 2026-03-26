@@ -58,3 +58,25 @@ async fn fetch_user_from_id(user_id: i64, pool: PgPool) -> UserResponse {
         }
     }
 }
+
+pub async fn resolve_handle_to_id(
+    Path(handle): Path<String>,
+    state: State<AppState>,
+) -> Result<Json<i64>, (StatusCode, &'static str)> {
+    let result: Result<i64, _> = sqlx::query_scalar!(
+        "SELECT user_id \
+        FROM users \
+        WHERE handle=$1",
+        handle
+    )
+    .fetch_one(&state.db_pool)
+    .await;
+    match result {
+        Ok(id) => Ok(Json(id)),
+        Err(sqlx::Error::RowNotFound) => Err((StatusCode::NOT_FOUND, "Handle not found")),
+        Err(e) => {
+            tracing::error!("Database Error: {e}");
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database Error"))
+        }
+    }
+}
