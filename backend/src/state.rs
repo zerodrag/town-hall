@@ -1,4 +1,4 @@
-use std::{env, str::FromStr};
+use std::str::FromStr;
 
 use anyhow::Result;
 use oauth2::{
@@ -30,22 +30,30 @@ type GithubClient = oauth2::Client<
 pub struct AppState {
     pub db_pool: PgPool,
     pub oauth_client: GithubClient,
+    pub frontend_url: String,
+    pub backend_url: String,
 }
 
 impl AppState {
-    pub async fn new() -> Result<Self> {
+    pub async fn new(
+        database_url: String,
+        frontend_url: String,
+        backend_url: String,
+        gh_id_str: String,
+        gh_secret_str: String,
+    ) -> Result<Self> {
         // Database
-        let db_options = PgConnectOptions::from_str(env::var("DATABASE_URL")?.as_str())?;
+        let db_options = PgConnectOptions::from_str(&database_url)?;
         let pool = PgPoolOptions::new().connect_with(db_options).await?;
         // Run migrations under `migrations/`
         sqlx::migrate!().run(&pool).await?;
 
         // Authentication
-        let gh_client_id = ClientId::new(env::var("GITHUB_CLIENT_ID")?);
-        let gh_client_secret = ClientSecret::new(env::var("GITHUB_CLIENT_SECRET")?);
+        let gh_client_id = ClientId::new(gh_id_str);
+        let gh_client_secret = ClientSecret::new(gh_secret_str);
         let gh_auth_url = AuthUrl::new("https://github.com/login/oauth/authorize".to_string())?;
         let gh_token_url = TokenUrl::new("https://github.com/login/oauth/access_token".to_string())?;
-        let gh_redirect_url = RedirectUrl::new("http://localhost:3000/auth/github/callback".to_string())?;
+        let gh_redirect_url = RedirectUrl::new(format!("{}/auth/github/callback", backend_url))?;
         let gh_oauth_client = BasicClient::new(gh_client_id)
             .set_client_secret(gh_client_secret)
             .set_auth_uri(gh_auth_url)
@@ -55,6 +63,8 @@ impl AppState {
         Ok(Self {
             db_pool: pool,
             oauth_client: gh_oauth_client,
+            frontend_url,
+            backend_url,
         })
     }
 }

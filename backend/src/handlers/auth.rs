@@ -43,11 +43,11 @@ pub async fn github_callback(
         None => {
             // Log the error and redirect to login
             tracing::error!("No CSRF token found in session");
-            return Redirect::to("http://localhost:5173/?error=session_expired");
+            return Redirect::to(&format!("{}/?error=session_expired", state.frontend_url));
         }
     };
     if local_state != query.state {
-        return Redirect::to("http://localhost:5173/?error=invalid_csrf_token");
+        return Redirect::to(&format!("{}/?error=invalid_csrf_token", state.frontend_url));
     }
 
     // Use oauth2's reqwest here
@@ -75,7 +75,7 @@ pub async fn github_callback(
 
     let gh_user = client
         .get("https://api.github.com/user")
-        .header("User-Agent", "town-hall-backend (by zerodrag/town-hall")
+        .header("User-Agent", "town-hall (by zerodrag/town-hall")
         .bearer_auth(token_response.access_token().secret())
         .send()
         .await
@@ -108,10 +108,10 @@ pub async fn github_callback(
 
     session.insert("user_id", internal_user_id).await.unwrap();
 
-    Redirect::to("http://localhost:5173/")
+    Redirect::to(&format!("{}/user/{}", state.frontend_url, handle))
 }
 
-pub async fn logout(session: Session) -> Redirect {
+pub async fn logout(State(state): State<AppState>, session: Session) -> Redirect {
     session.clear().await;
-    Redirect::to("http://localhost:5173/")
+    Redirect::to(&state.frontend_url)
 }

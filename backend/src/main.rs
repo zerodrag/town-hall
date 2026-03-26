@@ -6,20 +6,56 @@ use anyhow::Result;
 
 pub use crate::state::AppState;
 
-const GENERATED_TS_TYPES_PATH: &'static str = "../frontend/src/lib/backend-types.ts";
+use clap::Parser;
+
+#[derive(Parser)]
+struct Args {
+    #[arg(long, env = "BACKEND_HOST", default_value = "http://localhost")]
+    backend_host: String,
+
+    #[arg(long, env = "BACKEND_PORT", default_value = "3000")]
+    backend_port: u16,
+
+    #[arg(long, env = "FRONTEND_URL", default_value = "http://localhost:5173")]
+    frontend_url: String,
+
+    #[arg(long, env = "DATABASE_URL")]
+    database_url: String,
+
+    #[arg(long, env = "GITHUB_CLIENT_ID")]
+    github_client_id: String,
+
+    #[arg(long, env = "GITHUB_CLIENT_SECRET")]
+    github_client_secret: String,
+
+    #[arg(
+        long,
+        env = "GEN_TS_TYPES_PATH",
+        default_value = "../frontend/src/lib/backend-types.ts"
+    )]
+    gen_ts_types_path: String,
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenvy::dotenv()?; // Export .env
     tracing_subscriber::fmt::init(); // Print tracing::_
+    let args = Args::parse(); // Parse CLI args
 
-    generate_ts_types().await?;
+    gen_types(args.gen_ts_types_path).await?;
 
-    let state = AppState::new().await?;
+    let state = AppState::new(
+        args.database_url,
+        args.frontend_url,
+        format!("{}:{}", args.backend_host, args.backend_port),
+        args.github_client_id,
+        args.github_client_secret,
+    )
+    .await?;
     let session_layer = session_layer(state.db_pool.clone()).await?;
     let cors_layer = cors_layer().await?;
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", args.backend_port)).await?;
     let app = router::root()
         .await?
         .with_state(state)
@@ -31,14 +67,14 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn generate_ts_types() -> Result<()> {
+async fn gen_types(path: String) -> Result<()> {
     use specta_typescript::Typescript;
 
     let types = specta::collect();
     let types_str = Typescript::default()
         .bigint(specta_typescript::BigIntExportBehavior::String)
         .export(&types)?;
-    tokio::fs::write(GENERATED_TS_TYPES_PATH, types_str).await?;
+    tokio::fs::write(path, types_str).await?;
     Ok(())
 }
 
