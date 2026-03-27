@@ -1,9 +1,6 @@
-mod user;
-pub use user::*;
-mod quest;
-pub use quest::*;
-mod auth;
-pub use auth::*;
+pub mod auth;
+pub mod quest;
+pub mod user;
 
 use axum::{
     http::{StatusCode, Uri},

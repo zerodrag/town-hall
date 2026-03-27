@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO quests (poster_id, title, description) VALUES ($1, $2, $3) RETURNING quest_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "quest_id",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Varchar",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "2964f4904496607c56e19e2a4c32a1c3ff23179a459d56fe215a83866bf95f46"
+}
