@@ -31,7 +31,7 @@ struct Args {
     #[arg(
         long,
         env = "GEN_TS_TYPES_PATH",
-        default_value = "../frontend/src/lib/backend-types.ts"
+        default_value = "../frontend/src/lib/backend/generated-types.ts"
     )]
     gen_ts_types_path: String,
 }

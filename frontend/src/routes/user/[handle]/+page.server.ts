@@ -1,4 +1,4 @@
-import { getUserFromHandle } from '$lib/backend.js';
+import { getUserFromHandle } from '$lib/backend/user.js';
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ params, fetch }) => {

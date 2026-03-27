@@ -1,4 +1,4 @@
-import { getUserMe } from '$lib/backend.js';
+import { getUserMe } from '$lib/backend/user.js';
 
 export const load = async ({ fetch }) => {
 	const user = await getUserMe(fetch);

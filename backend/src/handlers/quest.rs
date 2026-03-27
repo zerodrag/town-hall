@@ -45,7 +45,7 @@ pub async fn get_from_url(Path(quest_id): Path<i64>, State(state): State<AppStat
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, specta::Type)]
 pub struct CreateQuestRequest {
     title: String,
     description: String,

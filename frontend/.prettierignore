@@ -8,5 +8,5 @@ bun.lockb
 # Miscellaneous
 /static/
 
-# Generated types by backend
-backend-types.ts
+# Generated
+generated-types.ts
