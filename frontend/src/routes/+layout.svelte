@@ -2,6 +2,7 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { Compass, LogIn } from '@lucide/svelte';
+	import { SiGithub } from '@icons-pack/svelte-simple-icons';
 
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -49,6 +50,7 @@
 	</div>
 	<div class="flex flex-1 items-center justify-end gap-4">
 		{#if user}
+			<Button></Button>
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger>
 					<Avatar.Root
@@ -77,7 +79,9 @@
 					<DropdownMenu.Label>Links</DropdownMenu.Label>
 					<DropdownMenu.Item>
 						{#snippet child({ props })}
-							<a {...props} href="https://github.com/zerodrag/town-hall">GitHub</a>
+							<a {...props} href="https://github.com/zerodrag/town-hall">
+								<SiGithub />GitHub
+							</a>
 						{/snippet}
 					</DropdownMenu.Item>
 					<DropdownMenu.Separator />
@@ -90,8 +94,7 @@
 			</DropdownMenu.Root>
 		{:else}
 			<Button size="lg" href="{BACKEND_URL}/auth/github">
-				<LogIn />
-				<span>Sign in</span>
+				<LogIn />Sign in with <SiGithub /> GitHub
 			</Button>
 		{/if}
 	</div>
