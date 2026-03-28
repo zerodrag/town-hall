@@ -61,6 +61,7 @@ async fn main() -> Result<()> {
         .with_state(state)
         .layer(session_layer)
         .layer(cors_layer);
+    tracing::info!("Server starting!");
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await?;

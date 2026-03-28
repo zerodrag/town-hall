@@ -65,7 +65,7 @@
 					<DropdownMenu.Label>Account</DropdownMenu.Label>
 					<DropdownMenu.Item>
 						{#snippet child({ props })}
-							<a {...props} href={resolve(`/user/${user.handle}`)}>Profile</a>
+							<a {...props} href={resolve(`/user/${user.user_id}/${user.handle}`)}>Profile</a>
 						{/snippet}
 					</DropdownMenu.Item>
 					<DropdownMenu.Item>
