@@ -6,7 +6,6 @@
 
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { ModeWatcher } from 'mode-watcher';
 	import { Button } from '$lib/components/ui/button/';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
@@ -20,7 +19,6 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
-<ModeWatcher />
 <nav class="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6">
 	<div class="flex-1 text-2xl font-bold">
 		<a href={resolve('/')}>Town Hall</a>
@@ -32,8 +30,7 @@
 					<NavigationMenu.Link active={path === '/discover'}>
 						{#snippet child({ props })}
 							<a {...props} href={resolve('/discover')}>
-								<Compass class="size-5" />
-								<span>Discover</span>
+								<Compass class="size-5" />Discover
 							</a>
 						{/snippet}
 					</NavigationMenu.Link>
@@ -50,7 +47,6 @@
 	</div>
 	<div class="flex flex-1 items-center justify-end gap-4">
 		{#if user}
-			<Button></Button>
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger>
 					<Avatar.Root
