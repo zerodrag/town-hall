@@ -1,16 +1,14 @@
 import { BACKEND_URL, handleResponse, type BackendResult } from './common';
-import type { CreateQuestRequest, Quest } from './generated-types';
+import type { Quest } from './generated-types';
 
-export async function postQuest(
+export async function createQuest(
 	customFetch: typeof fetch,
-	title: string,
-	description: string
+	title: string
 ): Promise<BackendResult<number>> {
-	const request: CreateQuestRequest = { title, description };
 	const resp = await customFetch(`${BACKEND_URL}/quests`, {
 		method: `POST`,
-		headers: { 'Content-Type': 'application-json' },
-		body: JSON.stringify(request)
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(title)
 	});
 	return await handleResponse(resp);
 }
