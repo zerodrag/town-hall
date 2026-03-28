@@ -160,7 +160,10 @@ pub async fn github_callback(
         }
     }
 
-    Ok(Redirect::to(&format!("{}/user/{}", state.frontend_url, handle)))
+    Ok(Redirect::to(&format!(
+        "{}/user/{internal_user_id}/{handle}",
+        state.frontend_url
+    )))
 }
 
 pub async fn logout(State(state): State<AppState>, session: Session) -> Redirect {
