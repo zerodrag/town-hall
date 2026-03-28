@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT quest_id, poster_id, title, description, created_at FROM quests WHERE quest_id=$1",
+  "query": "SELECT quest_id, poster_id, title, description, status, created_at FROM quests WHERE quest_id=$1",
   "describe": {
     "columns": [
       {
@@ -16,7 +16,7 @@
       {
         "ordinal": 2,
         "name": "title",
-        "type_info": "Varchar"
+        "type_info": "Text"
       },
       {
         "ordinal": 3,
@@ -25,6 +25,11 @@
       },
       {
         "ordinal": 4,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
         "name": "created_at",
         "type_info": "Timestamptz"
       }
@@ -38,9 +43,10 @@
       false,
       false,
       false,
+      true,
       false,
       false
     ]
   },
-  "hash": "8676366061d2f073a3f7f6e4023536a2c80157613e071baa751956004453eb1f"
+  "hash": "948073a30a8ff3d4b22728241f51267f4166786daf7faabb706444fb6afa3783"
 }

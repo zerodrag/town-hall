@@ -8,7 +8,10 @@ use serde_with::{DisplayFromStr, serde_as};
 use sqlx::query_as;
 use tower_sessions::Session;
 
-use crate::AppState;
+use crate::{
+    AppState,
+    handlers::helper::{self, SimpResp},
+};
 
 #[serde_as]
 #[derive(Serialize, specta::Type)]
@@ -18,17 +21,21 @@ pub struct Quest {
     #[serde_as(as = "DisplayFromStr")]
     poster_id: i64,
     title: String,
-    description: String,
+    description: Option<String>,
+    status: String,
     #[serde(with = "time::serde::rfc3339")]
     created_at: time::OffsetDateTime,
 }
 
-type QuestResponse = Result<Json<Quest>, (StatusCode, &'static str)>;
-
-pub async fn get_from_url(Path(quest_id): Path<i64>, State(state): State<AppState>) -> QuestResponse {
+#[axum::debug_handler]
+pub async fn get_from_url(
+    session: Session,
+    Path(quest_id): Path<i64>,
+    State(state): State<AppState>,
+) -> SimpResp<Json<Quest>> {
     let result = query_as!(
         Quest,
-        "SELECT quest_id, poster_id, title, description, created_at \
+        "SELECT quest_id, poster_id, title, description, status, created_at \
         FROM quests \
         WHERE quest_id=$1",
         quest_id
@@ -36,7 +43,14 @@ pub async fn get_from_url(Path(quest_id): Path<i64>, State(state): State<AppStat
     .fetch_one(&state.db_pool)
     .await;
     match result {
-        Ok(quest) => Ok(Json(quest)),
+        Ok(quest) => {
+            let id = helper::resolve_current_user_id(&session).await?;
+            if id != quest.poster_id {
+                Err((StatusCode::NOT_FOUND, "Quest ID not found"))
+            } else {
+                Ok(Json(quest))
+            }
+        }
         Err(sqlx::Error::RowNotFound) => Err((StatusCode::NOT_FOUND, "Quest ID not found")),
         Err(e) => {
             tracing::error!("Database Error: {e}");
@@ -48,37 +62,29 @@ pub async fn get_from_url(Path(quest_id): Path<i64>, State(state): State<AppStat
 #[derive(Deserialize, specta::Type)]
 pub struct CreateQuestRequest {
     title: String,
-    description: String,
 }
 
+#[axum::debug_handler]
 pub async fn create(
     session: Session,
     State(state): State<AppState>,
     Json(request): Json<CreateQuestRequest>,
-) -> Result<Json<i64>, (StatusCode, &'static str)> {
-    let Ok(user_id): Result<Option<i64>, _> = session.get("user_id").await else {
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, "Session error"));
-    };
-    match user_id {
-        Some(id) => {
-            let result: Result<i64, _> = sqlx::query_scalar!(
-                "INSERT INTO quests (poster_id, title, description) \
-                VALUES ($1, $2, $3) \
-                RETURNING quest_id",
-                id,
-                request.title,
-                request.description
-            )
-            .fetch_one(&state.db_pool)
-            .await;
-            match result {
-                Ok(quest_id) => Ok(Json(quest_id)),
-                Err(e) => {
-                    tracing::error!("Database Error: {e}");
-                    Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error"))
-                }
-            }
+) -> SimpResp<Json<i64>> {
+    let id = helper::resolve_current_user_id(&session).await?;
+    let result: Result<i64, _> = sqlx::query_scalar!(
+        "INSERT INTO quests (poster_id, title) \
+        VALUES ($1, $2) \
+        RETURNING quest_id",
+        id,
+        request.title
+    )
+    .fetch_one(&state.db_pool)
+    .await;
+    match result {
+        Ok(quest_id) => Ok(Json(quest_id)),
+        Err(e) => {
+            tracing::error!("Database Error: {e}");
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error"))
         }
-        None => Err((StatusCode::UNAUTHORIZED, "Not logged in")),
     }
 }

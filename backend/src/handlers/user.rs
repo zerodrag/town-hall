@@ -8,7 +8,10 @@ use serde_with::{DisplayFromStr, serde_as};
 use sqlx::PgPool;
 use tower_sessions::Session;
 
-use crate::AppState;
+use crate::{
+    AppState,
+    handlers::helper::{SimpResp, resolve_current_user_id},
+};
 
 #[serde_as]
 #[derive(Serialize, specta::Type)]
@@ -22,24 +25,18 @@ pub struct User {
     created_at: time::OffsetDateTime,
 }
 
-type UserResponse = Result<Json<User>, (StatusCode, &'static str)>;
-
-pub async fn get_from_url(Path(user_id): Path<i64>, State(state): State<AppState>) -> UserResponse {
+#[axum::debug_handler]
+pub async fn get_from_url(Path(user_id): Path<i64>, State(state): State<AppState>) -> SimpResp<Json<User>> {
     fetch_from_id(user_id, state.db_pool.clone()).await
 }
 
-pub async fn get_me(session: Session, State(state): State<AppState>) -> UserResponse {
-    let Ok(user_id): Result<Option<i64>, _> = session.get("user_id").await else {
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, "Session error"));
-    };
-
-    match user_id {
-        Some(id) => fetch_from_id(id, state.db_pool.clone()).await,
-        None => Err((StatusCode::UNAUTHORIZED, "Not logged in")),
-    }
+#[axum::debug_handler]
+pub async fn get_me(session: Session, State(state): State<AppState>) -> SimpResp<Json<User>> {
+    let id = resolve_current_user_id(&session).await?;
+    fetch_from_id(id, state.db_pool.clone()).await
 }
 
-async fn fetch_from_id(user_id: i64, pool: PgPool) -> UserResponse {
+async fn fetch_from_id(user_id: i64, pool: PgPool) -> SimpResp<Json<User>> {
     let result = sqlx::query_as!(
         User,
         "SELECT user_id, github_id, handle, created_at \
@@ -59,10 +56,8 @@ async fn fetch_from_id(user_id: i64, pool: PgPool) -> UserResponse {
     }
 }
 
-pub async fn resolve_handle_to_id(
-    Path(handle): Path<String>,
-    state: State<AppState>,
-) -> Result<Json<i64>, (StatusCode, &'static str)> {
+#[axum::debug_handler]
+pub async fn resolve_handle_to_id(Path(handle): Path<String>, state: State<AppState>) -> SimpResp<Json<i64>> {
     let result: Result<i64, _> = sqlx::query_scalar!(
         "SELECT user_id \
         FROM users \
