@@ -1,4 +1,5 @@
 import { getQuest } from '$lib/backend/quest';
+import { slugify } from '$lib/utils.js';
 import { error, redirect } from '@sveltejs/kit';
 
 export const load = async ({ fetch, params }) => {
@@ -7,11 +8,5 @@ export const load = async ({ fetch, params }) => {
 		error(questResult.status, questResult.body);
 	}
 	const quest = questResult.data;
-	const slug = quest.title
-		.toLowerCase()
-		.trim()
-		.replace(/[^\w\s-]/g, '')
-		.replace(/[\s_-]+/g, '-')
-		.replace(/^-+|-+$/g, '');
-	redirect(301, `/quest/${quest.quest_id}/${slug}`);
+	redirect(301, `/quest/${quest.quest_id}/${slugify(quest.title)}`);
 };
