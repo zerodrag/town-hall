@@ -36,9 +36,9 @@ pub struct AppState {
 
 impl AppState {
     pub async fn new(
-        database_url: String,
-        frontend_url: String,
-        backend_url: String,
+        database_url: &String,
+        frontend_url: &String,
+        backend_url: &String,
         gh_id_str: String,
         gh_secret_str: String,
     ) -> Result<Self> {
@@ -63,8 +63,8 @@ impl AppState {
         Ok(Self {
             db_pool: pool,
             oauth_client: gh_oauth_client,
-            frontend_url,
-            backend_url,
+            frontend_url: frontend_url.clone(),
+            backend_url: frontend_url.clone(),
         })
     }
 }

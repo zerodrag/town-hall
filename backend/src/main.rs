@@ -45,15 +45,15 @@ async fn main() -> Result<()> {
     gen_types(args.gen_ts_types_path).await?;
 
     let state = AppState::new(
-        args.database_url,
-        args.frontend_url,
-        format!("{}:{}", args.backend_host, args.backend_port),
+        &args.database_url,
+        &args.frontend_url,
+        &format!("{}:{}", args.backend_host, args.backend_port),
         args.github_client_id,
         args.github_client_secret,
     )
     .await?;
     let session_layer = session_layer(state.db_pool.clone()).await?;
-    let cors_layer = cors_layer().await?;
+    let cors_layer = cors_layer(&args.frontend_url).await?;
 
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", args.backend_port)).await?;
     let app = router::root()
@@ -92,11 +92,11 @@ async fn session_layer(db_pool: PgPool) -> Result<SessionManagerLayer<PostgresSt
 }
 
 use tower_http::cors::CorsLayer;
-async fn cors_layer() -> Result<CorsLayer> {
+async fn cors_layer(frontend_url: &String) -> Result<CorsLayer> {
     use http::{HeaderValue, Method, header};
 
     let layer = CorsLayer::new()
-        .allow_origin("http://localhost:5173".parse::<HeaderValue>().unwrap())
+        .allow_origin(frontend_url.parse::<HeaderValue>().unwrap())
         .allow_methods([Method::GET, Method::POST])
         .allow_headers([header::CONTENT_TYPE])
         .allow_credentials(true);
