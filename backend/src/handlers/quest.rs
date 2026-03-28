@@ -3,7 +3,7 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use serde_with::{DisplayFromStr, serde_as};
 use sqlx::query_as;
 use tower_sessions::Session;
@@ -59,24 +59,15 @@ pub async fn get_from_url(
     }
 }
 
-#[derive(Deserialize, specta::Type)]
-pub struct CreateQuestRequest {
-    title: String,
-}
-
 #[axum::debug_handler]
-pub async fn create(
-    session: Session,
-    State(state): State<AppState>,
-    Json(request): Json<CreateQuestRequest>,
-) -> SimpResp<Json<i64>> {
+pub async fn create(session: Session, State(state): State<AppState>, Json(title): Json<String>) -> SimpResp<Json<i64>> {
     let id = helper::resolve_current_user_id(&session).await?;
     let result: Result<i64, _> = sqlx::query_scalar!(
         "INSERT INTO quests (poster_id, title) \
         VALUES ($1, $2) \
         RETURNING quest_id",
         id,
-        request.title
+        title
     )
     .fetch_one(&state.db_pool)
     .await;
