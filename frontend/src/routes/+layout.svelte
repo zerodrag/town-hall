@@ -10,6 +10,7 @@
 	import * as Avatar from '$lib/components/ui/avatar';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as NavigationMenu from '$lib/components/ui/navigation-menu';
+	import { BACKEND_URL } from '$lib/backend/common';
 
 	let { data, children } = $props();
 	const user = $derived(data.user);
@@ -82,13 +83,13 @@
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item>
 						{#snippet child({ props })}
-							<a {...props} href="http://localhost:3000/auth/logout">Sign out</a>
+							<a {...props} href="{BACKEND_URL}/auth/logout">Sign out</a>
 						{/snippet}
 					</DropdownMenu.Item>
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		{:else}
-			<Button size="lg" href="http://localhost:3000/auth/github">
+			<Button size="lg" href="{BACKEND_URL}/auth/github">
 				<LogIn />
 				<span>Sign in</span>
 			</Button>
