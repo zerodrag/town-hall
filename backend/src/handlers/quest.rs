@@ -44,11 +44,16 @@ pub async fn get_from_url(
     .await;
     match result {
         Ok(quest) => {
-            let id = helper::resolve_current_user_id(&session).await?;
-            if id != quest.poster_id {
-                Err((StatusCode::NOT_FOUND, "Quest ID not found"))
-            } else {
+            if quest.status != "draft" {
                 Ok(Json(quest))
+            } else {
+                if let Ok(id) = helper::resolve_current_user_id(&session).await
+                    && id == quest.poster_id
+                {
+                    Ok(Json(quest))
+                } else {
+                    Err((StatusCode::NOT_FOUND, "Quest ID not found"))
+                }
             }
         }
         Err(sqlx::Error::RowNotFound) => Err((StatusCode::NOT_FOUND, "Quest ID not found")),
