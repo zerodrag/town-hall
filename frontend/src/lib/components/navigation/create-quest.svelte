@@ -64,7 +64,7 @@
 					class="invalid:border-destructive"
 				/>
 				{#if questError}
-					<p class="text-sm text-destructive">{questError}</p>
+					<p class="text-destructive">{questError}</p>
 				{/if}
 			</div>
 		</div>

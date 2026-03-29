@@ -71,6 +71,11 @@ pub async fn create(session: Session, State(state): State<AppState>, Json(title)
         return Err((StatusCode::BAD_REQUEST, "Title must be between 10 to 100 characters"));
     }
 
+    // TESTING ONLY. DELETE IN PROD
+    if cleaned_title == "Never gonna give you up" {
+        return Err((StatusCode::BAD_REQUEST, "Title must not be a rick roll"));
+    }
+
     let id = helper::resolve_current_user_id(&session).await?;
     let result: Result<i64, _> = sqlx::query_scalar!(
         "INSERT INTO quests (poster_id, title) \
