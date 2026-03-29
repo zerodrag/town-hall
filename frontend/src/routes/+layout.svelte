@@ -5,7 +5,6 @@
 	import { SiGithub } from '@icons-pack/svelte-simple-icons';
 
 	import { resolve } from '$app/paths';
-	import { applyAction, enhance } from '$app/forms';
 	import { page } from '$app/state';
 
 	import * as Avatar from '$lib/components/ui/avatar';
@@ -18,6 +17,8 @@
 	import { Spinner } from '$lib/components/ui/spinner';
 
 	import { BACKEND_URL } from '$lib/backend/common';
+	import { goto } from '$app/navigation';
+	import { createQuest } from '$lib/backend/quest';
 
 	let { data, children } = $props();
 
@@ -25,6 +26,26 @@
 	let createQuestLoading = $state(false);
 	let questTitle = $state('');
 	let questError = $state('');
+
+	async function handleCreateQuest(event: SubmitEvent) {
+		event.preventDefault();
+		questError = '';
+		createQuestLoading = true;
+
+		const result = await createQuest(questTitle);
+
+		createQuestLoading = false;
+
+		if (!result.ok) {
+			questError = result.body;
+			return;
+		}
+
+		const questId = result.data;
+		dialogOpen = false;
+		questTitle = '';
+		await goto(`/quest/${questId}`);
+	}
 
 	const user = $derived(data.user);
 	const path = $derived(page.url.pathname);
@@ -61,45 +82,7 @@
 
 	<div class="flex flex-1 items-center justify-end gap-4">
 		{#if user}
-			<form
-				id="create-quest-form"
-				method="POST"
-				action="/quest?/new"
-				use:enhance={({ formData, cancel }) => {
-					const title = String(formData.get('title') ?? '')
-						.trim()
-						.replace(/\s+/g, ' ');
-
-					formData.set('title', title);
-
-					if (title.length < 10 || title.length > 100) {
-						questError = 'Title must be 10-100 characters long.';
-						cancel();
-						return;
-					}
-
-					createQuestLoading = true;
-					questError = '';
-
-					return async ({ result }) => {
-						createQuestLoading = false;
-
-						if (result.type === 'failure') {
-							questError =
-								typeof result.data === 'object' &&
-								result.data &&
-								'error' in result.data &&
-								typeof result.data.error === 'string'
-									? result.data.error
-									: 'Could not create quest.';
-						} else if (result.type === 'redirect') {
-							dialogOpen = false;
-						}
-
-						await applyAction(result);
-					};
-				}}
-			></form>
+			<form id="create-quest-form" onsubmit={handleCreateQuest}></form>
 
 			<Dialog.Root bind:open={dialogOpen}>
 				<Dialog.Trigger type="button" class={buttonVariants({ variant: 'default' })}>

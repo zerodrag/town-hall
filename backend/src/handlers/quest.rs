@@ -66,13 +66,18 @@ pub async fn get_from_url(
 
 #[axum::debug_handler]
 pub async fn create(session: Session, State(state): State<AppState>, Json(title): Json<String>) -> SimpResp<Json<i64>> {
+    let cleaned_title = title.split_whitespace().collect::<Vec<_>>().join(" ");
+    if !(10..=100).contains(&cleaned_title.len()) {
+        return Err((StatusCode::BAD_REQUEST, "Title must be between 10 to 100 characters"));
+    }
+
     let id = helper::resolve_current_user_id(&session).await?;
     let result: Result<i64, _> = sqlx::query_scalar!(
         "INSERT INTO quests (poster_id, title) \
         VALUES ($1, $2) \
         RETURNING quest_id",
         id,
-        title
+        cleaned_title
     )
     .fetch_one(&state.db_pool)
     .await;
