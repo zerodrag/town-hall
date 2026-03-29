@@ -11,15 +11,14 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
-<nav class="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6">
+<nav class="mx-auto flex max-w-7xl items-center px-6 py-6">
 	<div class="flex-1">
 		<Logo />
 	</div>
 	<div class="flex-none">
 		<Links />
 	</div>
-
-	<div class="flex flex-1 items-center justify-end gap-4">
+	<div class="flex flex-1 justify-end gap-4">
 		{#if user}
 			<CreateQuest />
 			<PfpMenu {user} />
@@ -28,4 +27,6 @@
 		{/if}
 	</div>
 </nav>
-{@render children()}
+<div class="mx-auto max-w-7xl">
+	{@render children()}
+</div>
