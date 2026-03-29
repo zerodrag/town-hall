@@ -1,9 +1,9 @@
 import { error, redirect } from '@sveltejs/kit';
 
 export const load = async ({ parent }) => {
-	const { user } = await parent();
-	if (!user) {
+	const { me } = await parent();
+	if (!me) {
 		error(401, 'Not logged in');
 	}
-	redirect(307, `/user/${user.user_id}/${user.handle}`);
+	redirect(307, `/user/${me.user_id}/${me.handle}`);
 };

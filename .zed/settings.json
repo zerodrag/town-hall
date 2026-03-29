@@ -25,5 +25,10 @@
       "language_servers": ["sqruff"],
       "formatter": { "language_server": { "name": "sqruff" } },
     },
+    "Svelte": {
+      "inlay_hints": {
+        "show_type_hints": false,
+      },
+    },
   },
 }

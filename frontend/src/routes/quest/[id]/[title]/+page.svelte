@@ -1,7 +1,15 @@
 <script lang="ts">
-	const { data } = $props();
-	const quest = $derived(data.quest);
+  import { page } from '$app/state';
+  import { Button } from '$lib/components/ui/button';
+
+  const { data } = $props();
+  let quest = $derived(data.quest);
+  let me_owns_quest = $derived(data.me?.user_id === quest.poster_id);
 </script>
 
-<h1>{quest.title}</h1>
-<p>{quest.description}</p>
+<h1 class="text-4xl font-extrabold">{quest.title}</h1>
+<p class="text-xl">{quest.description}</p>
+
+{#if me_owns_quest}
+  <Button href="{page.url.pathname}/edit">Edit quest</Button>
+{/if}

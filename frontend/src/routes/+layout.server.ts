@@ -1,9 +1,9 @@
 import { getUserMe } from '$lib/backend/user.js';
 
 export const load = async ({ fetch }) => {
-	const user = await getUserMe(fetch);
-	if (!user.ok) {
+	const me = await getUserMe(fetch);
+	if (!me.ok) {
 		return { user: null };
 	}
-	return { user: user.data };
+	return { me: me.data };
 };
