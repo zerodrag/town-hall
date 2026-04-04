@@ -7,7 +7,7 @@
 </script>
 
 <Tabs.Root value="general" orientation="vertical" class="flex gap-6">
-  <Tabs.List class="flex w-72 flex-col gap-2 rounded-3xl bg-card p-3">
+  <Tabs.List class="flex w-72 flex-col gap-2 self-start rounded-3xl bg-card p-3">
     <Tabs.Trigger value="general" class={cn(navButtonStyle(), 'flex h-10 gap-2 px-4 text-lg font-medium')}>
       <Info size="20" /> General
     </Tabs.Trigger>
@@ -15,8 +15,8 @@
       <Tags />Tags
     </Tabs.Trigger>
   </Tabs.List>
-  <Tabs.Content value="general">
+  <Tabs.Content class="flex flex-1 flex-col gap-2 rounded-3xl bg-card p-6" value="general">
     <QuestEditorGeneral />
   </Tabs.Content>
-  <Tabs.Content value="tags">Edit tags here!</Tabs.Content>
+  <Tabs.Content class="flex-1 rounded-3xl bg-card p-6" value="tags">Edit tags here!</Tabs.Content>
 </Tabs.Root>

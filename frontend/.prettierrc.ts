@@ -14,8 +14,7 @@ const config: Config = {
       }
     }
   ],
-  tailwindStylesheet: './src/routes/layout.css',
-  bracketSameLine: true
+  tailwindStylesheet: './src/routes/layout.css'
 };
 
 export default config;
