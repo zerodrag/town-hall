@@ -38,10 +38,15 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    dotenvy::dotenv()?; // Export .env
     tracing_subscriber::fmt::init(); // Print tracing::_
+    if let Ok(path) = dotenvy::dotenv() {
+        tracing::info!("Reading dotenv file at: {}", path.display());
+    } else {
+        tracing::info!("Did not find dotenv file. Reading from environment variables.");
+    }; // Export .env
     let args = Args::parse(); // Parse CLI args
-
+    
+    tracing::info!("Generating types at: {}", args.gen_ts_types_path);
     gen_types(args.gen_ts_types_path).await?;
 
     let state = AppState::new(
