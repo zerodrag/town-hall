@@ -22,10 +22,10 @@ struct Args {
     #[arg(long, env = "DATABASE_URL")]
     database_url: String,
 
-    #[arg(long, env = "GITHUB_CLIENT_ID")]
+    #[arg(long, env = "GH_CLIENT_ID")]
     github_client_id: String,
 
-    #[arg(long, env = "GITHUB_CLIENT_SECRET")]
+    #[arg(long, env = "GH_CLIENT_SECRET")]
     github_client_secret: String,
 
     #[arg(

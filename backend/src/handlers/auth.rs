@@ -8,7 +8,7 @@ use reqwest::Client;
 use serde::Deserialize;
 use tower_sessions::Session;
 
-use crate::AppState;
+use crate::{AppState, handlers::helper::{SimpResp, resolve_session_key}};
 
 pub async fn github_login(
     State(state): State<AppState>,
@@ -52,15 +52,9 @@ pub async fn github_callback(
     State(state): State<AppState>,
     session: Session,
     Query(query): Query<AuthRequest>,
-) -> Result<Redirect, (StatusCode, &'static str)> {
+) -> SimpResp<Redirect> {
     // Check if the received CSRF token is the same as the one we sent
-    let local_state: String = match session.get("csrf_token").await.unwrap() {
-        Some(state) => state,
-        None => {
-            tracing::error!("No CSRF token found in session");
-            return Err((StatusCode::FORBIDDEN, "No CSRF token found in session"));
-        }
-    };
+    let local_state = resolve_session_key(&session, "csrf_token").await?;
     if local_state != query.state {
         return Err((StatusCode::FORBIDDEN, "Invalid CSRF token found in session"));
     }
@@ -80,7 +74,7 @@ pub async fn github_callback(
 
     // Send the local PKCE verifier. This will run in the previously sent PKCE challenge on GitHub servers
     // to check if the client is still who we claim to be.
-    let local_pkce_verifier = session.get("pkce_verifier").await.unwrap().unwrap();
+    let local_pkce_verifier = resolve_session_key(&session, "pkce_verifier").await?;
     let to_be_sent_pkce_verifier = PkceCodeVerifier::new(local_pkce_verifier);
 
     // Obtain access to access token.
@@ -123,11 +117,17 @@ pub async fn github_callback(
         }
     };
 
-    let (github_id, handle, email) = (
-        gh_user["id"].as_i64().unwrap(),
-        gh_user["name"].as_str().unwrap(),
-        gh_user["email"].as_str().unwrap(),
-    );
+    let user_info = (|| -> Option<(i64, &str, &str)> {
+        Some((
+            gh_user["id"].as_i64()?,
+            gh_user["name"].as_str()?,
+            gh_user["email"].as_str()?,
+        ))
+    })();
+
+    let Some((github_id, handle, email)) = user_info else {
+        return Err((StatusCode::INTERNAL_SERVER_ERROR, "GitHub API response parse failed"));
+    };
 
     let internal_user_id_result: Result<i64, _> = sqlx::query_scalar!(
         "INSERT INTO users (github_id, handle, email) \
