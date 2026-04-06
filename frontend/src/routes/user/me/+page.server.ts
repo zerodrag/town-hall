@@ -5,5 +5,5 @@ export const load = async ({ parent }) => {
   if (!me) {
     error(401, 'Not logged in');
   }
-  redirect(307, `/user/${me.user_id}/${me.handle}`);
+  redirect(307, `/user/${me.userId}/${me.handle}`);
 };

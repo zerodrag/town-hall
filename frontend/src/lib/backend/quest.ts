@@ -1,12 +1,15 @@
 import { BACKEND_URL, handleResponse, type BackendResult } from './common';
-import type { Quest } from './generated-types';
+import type { CreateQuestRequest, Quest } from './generated-types';
 
 export async function createQuest(title: string): Promise<BackendResult<number>> {
+  const body: CreateQuestRequest = {
+    title
+  };
   const resp = await fetch(`${BACKEND_URL}/quests`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(title)
+    body: JSON.stringify(body)
   });
   return await handleResponse(resp);
 }

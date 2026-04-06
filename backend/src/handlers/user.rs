@@ -15,6 +15,7 @@ use crate::{
 
 #[serde_as]
 #[derive(Serialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct User {
     #[serde_as(as = "DisplayFromStr")]
     user_id: i64,

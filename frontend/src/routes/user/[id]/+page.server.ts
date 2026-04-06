@@ -5,5 +5,5 @@ export const load = async ({ fetch, params }) => {
   const result = await getUser(fetch, params.id);
   if (!result.ok) error(result.status, result.body);
   const targetUser = result.data;
-  redirect(308, `/user/${targetUser.user_id}/${targetUser.handle}`);
+  redirect(308, `/user/${targetUser.userId}/${targetUser.handle}`);
 };

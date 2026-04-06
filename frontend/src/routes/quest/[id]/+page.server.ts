@@ -8,5 +8,5 @@ export const load = async ({ fetch, params }) => {
     error(questResult.status, questResult.body);
   }
   const quest = questResult.data;
-  redirect(308, `/quest/${quest.quest_id}/${slugify(quest.title)}`);
+  redirect(308, `/quest/${quest.questId}/${slugify(quest.title)}`);
 };

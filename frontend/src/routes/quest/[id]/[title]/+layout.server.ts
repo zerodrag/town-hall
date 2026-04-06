@@ -10,7 +10,7 @@ export const load = async ({ fetch, params }) => {
   const quest = questResult.data;
   const slug = slugify(quest.title);
   if (slug !== params.title) {
-    redirect(308, `/quest/${quest.quest_id}/${slug}`);
+    redirect(308, `/quest/${quest.questId}/${slug}`);
   }
   return { quest };
 };

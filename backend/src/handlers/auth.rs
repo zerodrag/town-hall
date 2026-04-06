@@ -8,7 +8,10 @@ use reqwest::Client;
 use serde::Deserialize;
 use tower_sessions::Session;
 
-use crate::{AppState, handlers::helper::{SimpResp, resolve_session_key}};
+use crate::{
+    AppState,
+    handlers::helper::{SimpResp, resolve_session_key},
+};
 
 pub async fn github_login(
     State(state): State<AppState>,
@@ -54,9 +57,11 @@ pub async fn github_callback(
     Query(query): Query<AuthRequest>,
 ) -> SimpResp<Redirect> {
     // Check if the received CSRF token is the same as the one we sent
-    let local_state = resolve_session_key(&session, "csrf_token").await?;
+    let Some(local_state) = resolve_session_key::<String>(&session, "csrf_token").await? else {
+        return Err((StatusCode::BAD_REQUEST, "CSRF token not found in session"));
+    };
     if local_state != query.state {
-        return Err((StatusCode::FORBIDDEN, "Invalid CSRF token found in session"));
+        return Err((StatusCode::BAD_REQUEST, "Invalid CSRF token found in session"));
     }
 
     // Use oauth2's reqwest here
@@ -74,7 +79,9 @@ pub async fn github_callback(
 
     // Send the local PKCE verifier. This will run in the previously sent PKCE challenge on GitHub servers
     // to check if the client is still who we claim to be.
-    let local_pkce_verifier = resolve_session_key(&session, "pkce_verifier").await?;
+    let Some(local_pkce_verifier) = resolve_session_key::<String>(&session, "pkce_verifier").await? else {
+        return Err((StatusCode::BAD_REQUEST, "PKCE verifier not found in session"));
+    };
     let to_be_sent_pkce_verifier = PkceCodeVerifier::new(local_pkce_verifier);
 
     // Obtain access to access token.

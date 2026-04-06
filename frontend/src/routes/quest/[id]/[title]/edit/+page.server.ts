@@ -7,7 +7,7 @@ export const load = async ({ parent }) => {
     error(401, 'Not logged in');
   }
   // If `me` doesn't own the quest
-  if (me.user_id !== quest.poster_id) {
+  if (me.userId !== quest.posterId) {
     if (quest.status === 'draft') {
       // Return Not Found if quest is a draft
       error(404, 'Quest ID not found');

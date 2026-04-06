@@ -59,7 +59,7 @@
           bind:value={questTitle}
           placeholder="Enter quest title..."
           required
-          minlength={10}
+          minlength={1}
           maxlength={100}
           class="invalid:border-destructive"
         />

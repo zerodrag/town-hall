@@ -3,10 +3,12 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
-use serde::Serialize;
+use axum_valid::Valid;
+use serde::{Deserialize, Serialize};
 use serde_with::{DisplayFromStr, serde_as};
 use sqlx::query_as;
 use tower_sessions::Session;
+use validator::{Validate, ValidationError};
 
 use crate::{
     AppState,
@@ -15,6 +17,7 @@ use crate::{
 
 #[serde_as]
 #[derive(Serialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct Quest {
     #[serde_as(as = "DisplayFromStr")]
     quest_id: i64,
@@ -64,17 +67,31 @@ pub async fn get_from_url(
     }
 }
 
-#[axum::debug_handler]
-pub async fn create(session: Session, State(state): State<AppState>, Json(title): Json<String>) -> SimpResp<Json<i64>> {
-    let cleaned_title = title.split_whitespace().collect::<Vec<_>>().join(" ");
-    if !(10..=100).contains(&cleaned_title.len()) {
-        return Err((StatusCode::BAD_REQUEST, "Title must be between 10 to 100 characters"));
-    }
+#[derive(specta::Type, Validate, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateQuestRequest {
+    #[validate(custom(function = "validate_title"))]
+    pub title: String,
+}
 
-    // TESTING ONLY. DELETE IN PROD
-    if cleaned_title == "Never gonna give you up" {
-        return Err((StatusCode::BAD_REQUEST, "Title must not be a rick roll"));
+fn validate_title(title: &str) -> Result<(), ValidationError> {
+    let cleaned_title = title.trim();
+    if !(1..=100).contains(&cleaned_title.len()) {
+        return Err(ValidationError::new("Title must be 1 to 100 characters long"));
     }
+    if cleaned_title == "Never gonna give you up" {
+        return Err(ValidationError::new("Title must not be a rick roll"));
+    }
+    Ok(())
+}
+
+#[axum::debug_handler]
+pub async fn create(
+    session: Session,
+    State(state): State<AppState>,
+    Valid(Json(req)): Valid<Json<CreateQuestRequest>>,
+) -> SimpResp<Json<i64>> {
+    let trimmed_title = req.title.trim();
 
     let id = helper::resolve_current_user_id(&session).await?;
     let result: Result<i64, _> = sqlx::query_scalar!(
@@ -82,7 +99,7 @@ pub async fn create(session: Session, State(state): State<AppState>, Json(title)
         VALUES ($1, $2) \
         RETURNING quest_id",
         id,
-        cleaned_title
+        trimmed_title
     )
     .fetch_one(&state.db_pool)
     .await;
