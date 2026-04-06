@@ -1,10 +1,11 @@
 <script lang="ts">
+  import type { User } from '$lib/backend/generated-types';
   import NavbarLinks from './navbar-links.svelte';
   import NavbarLogin from './navbar-login.svelte';
   import NavbarLogo from './navbar-logo.svelte';
   import NavbarPfp from './navbar-pfp.svelte';
   import NavbarQuestButton from './navbar-quest-button.svelte';
-  let { me } = $props();
+  let { me }: { me: User | undefined } = $props();
 </script>
 
 <nav class="flex items-center py-6">

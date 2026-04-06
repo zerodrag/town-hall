@@ -4,7 +4,7 @@ CREATE TABLE quests (
 
     title TEXT NOT NULL,
     CONSTRAINT title_length_is_valid CHECK (
-        char_length(title) BETWEEN 10 AND 100
+        char_length(title) BETWEEN 1 AND 100
     ),
 
     description TEXT,
