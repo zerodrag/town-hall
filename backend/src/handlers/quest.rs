@@ -24,7 +24,7 @@ pub struct Quest {
     #[serde_as(as = "DisplayFromStr")]
     poster_id: i64,
     title: String,
-    description: Option<String>,
+    description: String,
     status: String,
     #[serde(with = "time::serde::rfc3339")]
     created_at: time::OffsetDateTime,
@@ -95,11 +95,12 @@ pub async fn create(
 
     let id = helper::resolve_current_user_id(&session).await?;
     let result: Result<i64, _> = sqlx::query_scalar!(
-        "INSERT INTO quests (poster_id, title) \
-        VALUES ($1, $2) \
+        "INSERT INTO quests (poster_id, title, description) \
+        VALUES ($1, $2, $3) \
         RETURNING quest_id",
         id,
-        trimmed_title
+        trimmed_title,
+        "",
     )
     .fetch_one(&state.db_pool)
     .await;

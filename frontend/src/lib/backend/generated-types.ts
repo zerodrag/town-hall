@@ -7,7 +7,7 @@ export type Quest = {
 	questId: string,
 	posterId: string,
 	title: string,
-	description: string | null,
+	description: string,
 	status: string,
 	createdAt: string,
 };
