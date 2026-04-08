@@ -1,19 +1,23 @@
-import { fetchBackend, handleResponse, type BackendResult } from './common';
-import type { CreateQuestRequest, Quest } from './generated-types';
+import { fetchBackend } from './common';
+import type { CreateQuestRequest, UpdateQuestRequest } from './generated-types';
 
-export async function createQuest(title: string): Promise<BackendResult<number>> {
-  const body: CreateQuestRequest = {
-    title
-  };
-  const resp = await fetchBackend(fetch, '/quests', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  return await handleResponse(resp);
+export async function getQuest(customFetch: typeof fetch, id: string): Promise<Response> {
+  return await fetchBackend(customFetch, `/quests/${id}`);
 }
 
-export async function getQuest(customFetch: typeof fetch, id: string): Promise<BackendResult<Quest>> {
-  const resp = await fetchBackend(customFetch, `/quests/${id}`);
-  return await handleResponse(resp);
+/// Returns quest id
+export async function createQuest(params: CreateQuestRequest): Promise<Response> {
+  return await fetchBackend(fetch, '/quests', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params)
+  });
+}
+
+export async function updateQuest(id: string, params: UpdateQuestRequest) {
+  return await fetchBackend(fetch, `/quests/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params)
+  });
 }

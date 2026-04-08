@@ -1,6 +1,7 @@
 use anyhow::Result;
 use axum::Router;
 use axum::routing::get;
+use axum::routing::patch;
 use axum::routing::post;
 
 use crate::AppState;
@@ -28,7 +29,8 @@ async fn users() -> Result<Router<AppState>> {
 async fn quests() -> Result<Router<AppState>> {
     let router = Router::new()
         .route("/", post(quest::create))
-        .route("/{id}", get(quest::get_from_url));
+        .route("/{id}", get(quest::get_from_url))
+        .route("/{id}", patch(quest::update));
     Ok(router)
 }
 

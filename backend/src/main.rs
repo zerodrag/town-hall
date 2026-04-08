@@ -45,7 +45,7 @@ async fn main() -> Result<()> {
         tracing::info!("Did not find dotenv file. Reading from environment variables.");
     }; // Export .env
     let args = Args::parse(); // Parse CLI args
-    
+
     tracing::info!("Generating types at: {}", args.gen_ts_types_path);
     gen_types(args.gen_ts_types_path).await?;
 
@@ -102,7 +102,7 @@ async fn cors_layer(frontend_url: &String) -> Result<CorsLayer> {
 
     let layer = CorsLayer::new()
         .allow_origin(frontend_url.parse::<HeaderValue>().unwrap())
-        .allow_methods([Method::GET, Method::POST])
+        .allow_methods([Method::GET, Method::POST, Method::PATCH])
         .allow_headers([header::CONTENT_TYPE])
         .allow_credentials(true);
     Ok(layer)

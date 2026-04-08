@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE quests SET title = COALESCE($1, title), description = COALESCE($2, description), status = COALESCE($3, status) WHERE quest_id = $4\n        AND poster_id = $5",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "quest_status",
+            "kind": {
+              "Enum": [
+                "draft",
+                "ongoing",
+                "solved"
+              ]
+            }
+          }
+        },
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4751657ecc2504ad0eca1feb725bd8eb93fb1460ea86ab46eab2a956f2bad257"
+}

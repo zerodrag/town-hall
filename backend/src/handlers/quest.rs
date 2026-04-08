@@ -15,6 +15,15 @@ use crate::{
     handlers::helper::{self, SimpResp},
 };
 
+#[derive(PartialEq, Debug, Serialize, Deserialize, specta::Type, sqlx::Type)]
+#[sqlx(type_name = "quest_status", rename_all = "lowercase")]
+#[serde(rename_all = "camelCase")]
+pub enum QuestStatus {
+    Draft,
+    Ongoing,
+    Solved,
+}
+
 #[serde_as]
 #[derive(Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
@@ -25,7 +34,7 @@ pub struct Quest {
     poster_id: i64,
     title: String,
     description: String,
-    status: String,
+    status: QuestStatus,
     #[serde(with = "time::serde::rfc3339")]
     created_at: time::OffsetDateTime,
 }
@@ -38,7 +47,7 @@ pub async fn get_from_url(
 ) -> SimpResp<Json<Quest>> {
     let result = query_as!(
         Quest,
-        "SELECT quest_id, poster_id, title, description, status, created_at \
+        "SELECT quest_id, poster_id, title, description, status as \"status: _\", created_at \
         FROM quests \
         WHERE quest_id=$1",
         quest_id
@@ -47,7 +56,7 @@ pub async fn get_from_url(
     .await;
     match result {
         Ok(quest) => {
-            if quest.status != "draft" {
+            if quest.status != QuestStatus::Draft {
                 Ok(Json(quest))
             } else {
                 if let Ok(id) = helper::resolve_current_user_id(&session).await
@@ -109,6 +118,66 @@ pub async fn create(
         Err(e) => {
             tracing::error!("Database Error: {e}");
             Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error"))
+        }
+    }
+}
+
+#[derive(specta::Type, Validate, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateQuestRequest {
+    #[validate(custom(function = "validate_title"))]
+    #[specta(optional)]
+    pub title: Option<String>,
+    #[validate(custom(function = "validate_description"))]
+    #[specta(optional)]
+    pub description: Option<String>,
+    #[specta(optional)]
+    pub status: Option<QuestStatus>,
+}
+
+fn validate_description(description: &str) -> Result<(), ValidationError> {
+    let cleaned_desc = description.trim();
+    if !(1..=1000).contains(&cleaned_desc.len()) {
+        return Err(ValidationError::new("Title must be 1 to 100 characters long"));
+    }
+    if cleaned_desc == "Never gonna give you up" {
+        return Err(ValidationError::new("Title must not be a rick roll"));
+    }
+    Ok(())
+}
+
+#[axum::debug_handler]
+pub async fn update(
+    session: Session,
+    Path(quest_id): Path<i64>,
+    State(state): State<AppState>,
+    Valid(Json(request)): Valid<Json<UpdateQuestRequest>>,
+) -> SimpResp<StatusCode> {
+    tracing::debug!("{request:?}");
+    let poster_id = helper::resolve_current_user_id(&session).await?;
+    let trim_title = request.title.map(|s| s.trim().to_string());
+    let trim_description = request.description.map(|s| s.trim().to_string());
+    let result: Result<_, _> = sqlx::query!(
+        "UPDATE quests \
+        SET \
+            title = COALESCE($1, title), \
+            description = COALESCE($2, description), \
+            status = COALESCE($3, status) \
+        WHERE quest_id = $4
+        AND poster_id = $5",
+        trim_title,
+        trim_description,
+        request.status as Option<QuestStatus>,
+        quest_id,
+        poster_id
+    )
+    .fetch_optional(&state.db_pool)
+    .await;
+    match result {
+        Ok(_) => Ok(StatusCode::NO_CONTENT),
+        Err(e) => {
+            tracing::error!("Databaser error: {e}");
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database Error"))
         }
     }
 }

@@ -1,26 +1,23 @@
-import { fetchBackend, handleResponse, type BackendResult } from './common';
-import type { User } from './generated-types';
+import { fetchBackend } from './common';
 
-export async function getUserMe(customFetch: typeof fetch): Promise<BackendResult<User>> {
-  const resp = await fetchBackend(customFetch, '/users/me');
-  return await handleResponse(resp);
+export async function getUserMe(customFetch: typeof fetch): Promise<Response> {
+  return await fetchBackend(customFetch, '/users/me');
 }
 
-export async function getUser(customFetch: typeof fetch, id: string): Promise<BackendResult<User>> {
-  const resp = await fetchBackend(customFetch, `/users/${id}`);
-  return await handleResponse(resp);
+export async function getUser(customFetch: typeof fetch, id: string): Promise<Response> {
+  return await fetchBackend(customFetch, `/users/${id}`);
 }
 
-export async function getUserFromHandle(customFetch: typeof fetch, handle: string): Promise<BackendResult<User>> {
+export async function getUserFromHandle(customFetch: typeof fetch, handle: string): Promise<Response> {
   const idResult = await resolveHandle(customFetch, handle);
   if (!idResult.ok) {
     return idResult; // Return the error if id fetch failed
   }
-  return await getUser(customFetch, idResult.data);
+  const id: string = await idResult.json();
+  return await getUser(customFetch, id);
 }
 
 // Helper to fetch ID from handle
-async function resolveHandle(customFetch: typeof fetch, handle: string): Promise<BackendResult<string>> {
-  const resp = await fetchBackend(customFetch, `/users/resolve/${handle}`);
-  return await handleResponse(resp);
+async function resolveHandle(customFetch: typeof fetch, handle: string): Promise<Response> {
+  return await fetchBackend(customFetch, `/users/resolve/${handle}`);
 }

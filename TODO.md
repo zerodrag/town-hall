@@ -1,1 +1,2 @@
-- [ ] Custom error handling
+- Custom error handling in backend
+  - Let backend return JSON for errors instead of just string

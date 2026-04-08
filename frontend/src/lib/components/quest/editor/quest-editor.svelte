@@ -1,6 +1,8 @@
 <script lang="ts">
   import { Info, Tags } from '@lucide/svelte';
-  import type { Quest } from '$lib/backend/generated-types';
+  import { invalidateAll } from '$app/navigation';
+  import type { Quest, UpdateQuestRequest } from '$lib/backend/generated-types';
+  import { updateQuest } from '$lib/backend/quest';
   import { navButtonStyle } from '$lib/styles/button';
   import { cn } from '$lib/utils';
   import { Tabs } from 'bits-ui';
@@ -17,11 +19,35 @@
     quest.title !== draft.title || quest.description !== draft.description || quest.status !== draft.status
   );
 
-  const save = () => {
-    // TODO: Save draft function
+  let saveError = $state('');
+  let saving = $state(false);
+
+  const save = async () => {
+    saveError = '';
+    saving = true;
+
+    const delta: UpdateQuestRequest = {};
+    if (quest.title !== draft.title) delta.title = draft.title;
+    if (quest.description !== draft.description) delta.description = draft.description;
+    if (quest.status !== draft.status) delta.status = draft.status;
+
+    if (Object.keys(delta).length === 0) return;
+
+    const response = await updateQuest(quest.questId, delta);
+
+    if (!response.ok) {
+      saveError = await response.text();
+      saving = false;
+      return;
+    }
+
+    // TODO: use `invalidate` instead to target the quest only
+    await invalidateAll();
+    saving = false;
   };
 
   const reset = () => {
+    saveError = '';
     draft = { ...quest };
   };
 
@@ -46,5 +72,5 @@
 </Tabs.Root>
 
 {#if editsMade}
-  <QuestEditorUnsavedChanges {save} {reset} />
+  <QuestEditorUnsavedChanges {save} {reset} {saveError} {saving} />
 {/if}
