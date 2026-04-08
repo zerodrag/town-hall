@@ -1,14 +1,12 @@
 <script lang="ts">
   import { Plus } from '@lucide/svelte';
-
-  import * as Dialog from '$lib/components/ui/dialog';
+  import { goto } from '$app/navigation';
+  import { createQuest } from '$lib/backend/quest';
   import { Button, buttonVariants } from '$lib/components/ui/button/';
+  import * as Dialog from '$lib/components/ui/dialog';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import { Spinner } from '$lib/components/ui/spinner';
-
-  import { goto } from '$app/navigation';
-  import { createQuest } from '$lib/backend/quest';
 
   let dialogOpen = $state(false);
   let createQuestLoading = $state(false);

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { LogIn } from '@lucide/svelte';
   import { SiGithub } from '@icons-pack/svelte-simple-icons';
-  import { Button } from '$lib/components/ui/button/';
+  import { LogIn } from '@lucide/svelte';
   import { BACKEND_URL } from '$lib/backend/common';
+  import { Button } from '$lib/components/ui/button/';
 </script>
 
 <Button href="{BACKEND_URL}/auth/github">

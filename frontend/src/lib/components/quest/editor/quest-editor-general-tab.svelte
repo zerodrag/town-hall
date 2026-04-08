@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { Textarea } from '$lib/components/ui/textarea';
-  import { Input } from '$lib/components/ui/input';
   import SvelteMarkdown from '@humanspeak/svelte-markdown';
-  import type { Quest } from '$lib/backend/generated-types';
-  import { Toggle } from '$lib/components/ui/toggle';
   import { Eye, EyeClosed } from '@lucide/svelte';
+  import type { Quest } from '$lib/backend/generated-types';
+  import { Input } from '$lib/components/ui/input';
+  import { Textarea } from '$lib/components/ui/textarea';
+  import { Toggle } from '$lib/components/ui/toggle';
 
   let { draft = $bindable() }: { draft: Quest } = $props();
 

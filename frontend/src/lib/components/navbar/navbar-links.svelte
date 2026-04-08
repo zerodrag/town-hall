@@ -1,8 +1,8 @@
 <script lang="ts">
+  import { Compass } from '@lucide/svelte';
   import { resolve } from '$app/paths';
   import { page } from '$app/state';
   import * as NavigationMenu from '$lib/components/ui/navigation-menu';
-  import { Compass } from '@lucide/svelte';
 
   let current_path = $derived(page.url.pathname);
 </script>

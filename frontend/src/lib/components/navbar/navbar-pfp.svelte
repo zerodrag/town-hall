@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { SiGithub } from '@icons-pack/svelte-simple-icons';
   import { resolve } from '$app/paths';
   import { BACKEND_URL } from '$lib/backend/common';
   import type { User } from '$lib/backend/generated-types';
   import * as Avatar from '$lib/components/ui/avatar';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-  import { SiGithub } from '@icons-pack/svelte-simple-icons';
 
   let { user }: { user: User } = $props();
 </script>

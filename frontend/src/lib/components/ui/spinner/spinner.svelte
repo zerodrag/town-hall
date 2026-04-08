@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { cn } from '$lib/utils.js';
-  import Loader2Icon from '@lucide/svelte/icons/loader-2';
   import type { LucideProps } from '@lucide/svelte';
+  import Loader2Icon from '@lucide/svelte/icons/loader-2';
+  import { cn } from '$lib/utils.js';
 
   let { class: className, role = 'status', 'aria-label': ariaLabel = 'Loading', ...rest }: LucideProps = $props();
 </script>

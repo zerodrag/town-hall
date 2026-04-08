@@ -1,5 +1,5 @@
-import { getUser } from '$lib/backend/user.js';
 import { error, redirect } from '@sveltejs/kit';
+import { getUser } from '$lib/backend/user.js';
 
 export const load = async ({ params, fetch }) => {
   const result = await getUser(fetch, params.id);

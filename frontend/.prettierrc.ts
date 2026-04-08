@@ -1,7 +1,7 @@
 import { type Config } from 'prettier';
 
 const config: Config = {
-  plugins: ['prettier-plugin-svelte', 'prettier-plugin-tailwindcss'],
+  plugins: ['prettier-plugin-svelte', 'prettier-plugin-tailwindcss', '@ianvs/prettier-plugin-sort-imports'],
   useTabs: false,
   singleQuote: true,
   trailingComma: 'none',

@@ -5,6 +5,7 @@
   import NavbarLogo from './navbar-logo.svelte';
   import NavbarPfp from './navbar-pfp.svelte';
   import NavbarQuestButton from './navbar-quest-button.svelte';
+
   let { me }: { me: User | undefined } = $props();
 </script>
 
