@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Info, Tags } from '@lucide/svelte';
-  import { invalidateAll } from '$app/navigation';
+  import { invalidate } from '$app/navigation';
+  import { BACKEND_URL } from '$lib/backend/common';
   import type { Quest, UpdateQuestRequest } from '$lib/backend/generated-types';
   import { updateQuest } from '$lib/backend/quest';
   import { navButtonStyle } from '$lib/styles/button';
@@ -20,11 +21,12 @@
   );
 
   let saveError = $state('');
-  let saving = $state(false);
+  let savingIcon: 'pending' | 'loading' | 'success' = $state('pending');
 
-  const save = async () => {
+  const update = async (event: SubmitEvent) => {
+    event.preventDefault();
     saveError = '';
-    saving = true;
+    savingIcon = 'loading';
 
     const delta: UpdateQuestRequest = {};
     if (quest.title !== draft.title) delta.title = draft.title;
@@ -37,13 +39,15 @@
 
     if (!response.ok) {
       saveError = await response.text();
-      saving = false;
+      savingIcon = 'pending';
       return;
     }
 
-    // TODO: use `invalidate` instead to target the quest only
-    await invalidateAll();
-    saving = false;
+    savingIcon = 'success';
+    setTimeout(async () => {
+      await invalidate(`${BACKEND_URL}/quests/${quest.questId}`);
+      savingIcon = 'pending';
+    }, 500);
   };
 
   const reset = () => {
@@ -55,6 +59,8 @@
   const triggerStyle = cn(navButtonStyle(), 'flex h-10 gap-2 px-4 text-lg font-medium');
   const contentStyle = 'flex flex-7 flex-col gap-4 self-start rounded-3xl bg-card p-6';
 </script>
+
+<form id="update-quest-form" onsubmit={update}></form>
 
 <Tabs.Root value="general" orientation="vertical" class="flex gap-6">
   <Tabs.List class={listStyle}>
@@ -72,5 +78,5 @@
 </Tabs.Root>
 
 {#if editsMade}
-  <QuestEditorUnsavedChanges {save} {reset} {saveError} {saving} />
+  <QuestEditorUnsavedChanges {reset} {saveError} {savingIcon} />
 {/if}

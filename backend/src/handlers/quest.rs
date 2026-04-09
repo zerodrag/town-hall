@@ -128,22 +128,10 @@ pub struct UpdateQuestRequest {
     #[validate(custom(function = "validate_title"))]
     #[specta(optional)]
     pub title: Option<String>,
-    #[validate(custom(function = "validate_description"))]
     #[specta(optional)]
     pub description: Option<String>,
     #[specta(optional)]
     pub status: Option<QuestStatus>,
-}
-
-fn validate_description(description: &str) -> Result<(), ValidationError> {
-    let cleaned_desc = description.trim();
-    if !(1..=1000).contains(&cleaned_desc.len()) {
-        return Err(ValidationError::new("Title must be 1 to 100 characters long"));
-    }
-    if cleaned_desc == "Never gonna give you up" {
-        return Err(ValidationError::new("Title must not be a rick roll"));
-    }
-    Ok(())
 }
 
 #[axum::debug_handler]
@@ -156,7 +144,6 @@ pub async fn update(
     tracing::debug!("{request:?}");
     let poster_id = helper::resolve_current_user_id(&session).await?;
     let trim_title = request.title.map(|s| s.trim().to_string());
-    let trim_description = request.description.map(|s| s.trim().to_string());
     let result: Result<_, _> = sqlx::query!(
         "UPDATE quests \
         SET \
@@ -166,7 +153,7 @@ pub async fn update(
         WHERE quest_id = $4
         AND poster_id = $5",
         trim_title,
-        trim_description,
+        request.description,
         request.status as Option<QuestStatus>,
         quest_id,
         poster_id
@@ -176,7 +163,7 @@ pub async fn update(
     match result {
         Ok(_) => Ok(StatusCode::NO_CONTENT),
         Err(e) => {
-            tracing::error!("Databaser error: {e}");
+            tracing::error!("Database error: {e}");
             Err((StatusCode::INTERNAL_SERVER_ERROR, "Database Error"))
         }
     }

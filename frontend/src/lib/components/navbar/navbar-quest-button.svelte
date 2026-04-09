@@ -13,7 +13,7 @@
   let questTitle = $state('');
   let questError = $state('');
 
-  async function handleCreateQuest(event: SubmitEvent) {
+  const create = async (event: SubmitEvent) => {
     event.preventDefault();
     questError = '';
     createQuestLoading = true;
@@ -31,10 +31,10 @@
     dialogOpen = false;
     questTitle = '';
     await goto(`/quest/${questId}`);
-  }
+  };
 </script>
 
-<form id="create-quest-form" onsubmit={handleCreateQuest}></form>
+<form id="create-quest-form" onsubmit={create}></form>
 
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger type="button" class={buttonVariants({ variant: 'default' })}>
@@ -57,8 +57,6 @@
           bind:value={questTitle}
           placeholder="Enter quest title..."
           required
-          minlength={1}
-          maxlength={100}
           class="invalid:border-destructive"
         />
         {#if questError}

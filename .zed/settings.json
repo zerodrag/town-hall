@@ -19,11 +19,13 @@
         },
       },
     },
-  },
-  "languages": {
-    "Svelte": {
-      "inlay_hints": {
-        "show_type_hints": false,
+    "vtsls": {
+      "settings": {
+        "vtsls": {
+          "experimental": {
+            "maxInlayHintLength": 30,
+          },
+        },
       },
     },
   },
