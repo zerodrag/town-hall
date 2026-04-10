@@ -20,17 +20,16 @@
 
     const resp = await createQuest({ title: questTitle });
 
-    createQuestLoading = false;
-
     if (!resp.ok) {
       questError = await resp.text();
       return;
     }
 
     const questId: number = await resp.json();
-    dialogOpen = false;
-    questTitle = '';
     await goto(`/quest/${questId}`);
+    questTitle = '';
+    createQuestLoading = false;
+    dialogOpen = false;
   };
 </script>
 

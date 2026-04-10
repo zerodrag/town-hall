@@ -47,7 +47,7 @@
     setTimeout(async () => {
       await invalidate(`${BACKEND_URL}/quests/${quest.questId}`);
       savingIcon = 'pending';
-    }, 500);
+    }, 200);
   };
 
   const reset = () => {

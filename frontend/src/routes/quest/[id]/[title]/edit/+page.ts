@@ -16,4 +16,5 @@ export const load = async ({ parent }) => {
       error(403, 'You do not have access to this page');
     }
   }
+  return { me };
 };
