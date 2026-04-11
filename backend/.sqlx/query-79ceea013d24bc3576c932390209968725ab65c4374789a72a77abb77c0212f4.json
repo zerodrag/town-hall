@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO quests (poster_id, title, description) VALUES ($1, $2, $3) RETURNING quest_id",
+  "query": "INSERT INTO quests (poster_id, title) VALUES ($1, $2) RETURNING quest_id",
   "describe": {
     "columns": [
       {
@@ -12,7 +12,6 @@
     "parameters": {
       "Left": [
         "Int8",
-        "Text",
         "Text"
       ]
     },
@@ -20,5 +19,5 @@
       false
     ]
   },
-  "hash": "2964f4904496607c56e19e2a4c32a1c3ff23179a459d56fe215a83866bf95f46"
+  "hash": "79ceea013d24bc3576c932390209968725ab65c4374789a72a77abb77c0212f4"
 }

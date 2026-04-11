@@ -8,7 +8,8 @@
 </script>
 
 <h1 class="text-4xl font-extrabold">{quest.title}</h1>
-<p class="text-xl">{quest.description}</p>
+<p class="text-xl">{quest.summary}</p>
+<p class="text-xl">{quest.details}</p>
 
 {#if me_owns_quest}
   <Button href="{page.url.pathname}/edit">Edit quest</Button>

@@ -5,10 +5,12 @@
   import { fade, fly } from 'svelte/transition';
 
   let {
+    updateFormId,
     reset,
     saveError,
     savingIcon
-  }: { reset: () => void; saveError: string; savingIcon: 'pending' | 'loading' | 'success' } = $props();
+  }: { updateFormId: string; reset: () => void; saveError: string; savingIcon: 'pending' | 'loading' | 'success' } =
+    $props();
 
   function light_bounce_out(t: number) {
     const c1 = 2.0;
@@ -32,7 +34,7 @@
       <Undo2 />
       <div>Reset</div>
     </Button>
-    <Button form="update-quest-form" type="submit" size="sm" variant="default" disabled={savingIcon !== 'pending'}>
+    <Button form={updateFormId} type="submit" size="sm" variant="default" disabled={savingIcon !== 'pending'}>
       {#if savingIcon === 'pending'}
         <Save />
       {:else if savingIcon === 'loading'}

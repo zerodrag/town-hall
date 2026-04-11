@@ -33,7 +33,8 @@ pub struct Quest {
     #[serde_as(as = "DisplayFromStr")]
     poster_id: i64,
     title: String,
-    description: String,
+    summary: String,
+    details: String,
     status: QuestStatus,
     #[serde(with = "time::serde::rfc3339")]
     created_at: time::OffsetDateTime,
@@ -47,7 +48,7 @@ pub async fn get_from_url(
 ) -> SimpResp<Json<Quest>> {
     let result = query_as!(
         Quest,
-        "SELECT quest_id, poster_id, title, description, status as \"status: _\", created_at \
+        "SELECT quest_id, poster_id, title, summary, details, status as \"status: _\", created_at \
         FROM quests \
         WHERE quest_id=$1",
         quest_id
@@ -104,12 +105,11 @@ pub async fn create(
 
     let id = helper::resolve_current_user_id(&session).await?;
     let result: Result<i64, _> = sqlx::query_scalar!(
-        "INSERT INTO quests (poster_id, title, description) \
-        VALUES ($1, $2, $3) \
+        "INSERT INTO quests (poster_id, title) \
+        VALUES ($1, $2) \
         RETURNING quest_id",
         id,
         trimmed_title,
-        "",
     )
     .fetch_one(&state.db_pool)
     .await;
@@ -129,7 +129,9 @@ pub struct UpdateQuestRequest {
     #[specta(optional)]
     pub title: Option<String>,
     #[specta(optional)]
-    pub description: Option<String>,
+    pub summary: Option<String>,
+    #[specta(optional)]
+    pub details: Option<String>,
     #[specta(optional)]
     pub status: Option<QuestStatus>,
 }
@@ -148,12 +150,14 @@ pub async fn update(
         "UPDATE quests \
         SET \
             title = COALESCE($1, title), \
-            description = COALESCE($2, description), \
-            status = COALESCE($3, status) \
-        WHERE quest_id = $4
-        AND poster_id = $5",
+            summary = COALESCE($2, summary), \
+            details = COALESCE($3, details), \
+            status = COALESCE($4, status) \
+        WHERE quest_id = $5
+        AND poster_id = $6",
         trim_title,
-        request.description,
+        request.summary,
+        request.details,
         request.status as Option<QuestStatus>,
         quest_id,
         poster_id

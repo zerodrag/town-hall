@@ -7,7 +7,8 @@ CREATE TABLE quests (
 
     title TEXT NOT NULL,
 
-    description TEXT NOT NULL,
+    summary TEXT NOT NULL DEFAULT '',
+    details TEXT NOT NULL DEFAULT '',
 
     status quest_status NOT NULL DEFAULT 'draft',
 

@@ -7,7 +7,8 @@ export type Quest = {
 	questId: string,
 	posterId: string,
 	title: string,
-	description: string,
+	summary: string,
+	details: string,
 	status: QuestStatus,
 	createdAt: string,
 };
@@ -16,7 +17,8 @@ export type QuestStatus = "draft" | "ongoing" | "solved";
 
 export type UpdateQuestRequest = {
 	title?: string | null,
-	description?: string | null,
+	summary?: string | null,
+	details?: string | null,
 	status?: QuestStatus | null,
 };
 

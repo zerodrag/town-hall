@@ -10,15 +10,19 @@
   import QuestEditorGeneralTab from './quest-editor-general-tab.svelte';
   import QuestEditorUnsavedChanges from './quest-editor-unsaved-changes.svelte';
 
-  let { quest }: { quest: Quest } = $props();
+  let { quest, draft = $bindable() }: { quest: Quest; draft: Quest } = $props();
 
-  // draft should capture initial state of quest only
-  // svelte-ignore state_referenced_locally
-  let draft = $state<Quest>({ ...quest });
 
-  let editsMade = $derived(
-    quest.title !== draft.title || quest.description !== draft.description || quest.status !== draft.status
-  );
+  const calculateDeltaDraft = (draft: Quest, quest: Quest) => {
+    const delta: UpdateQuestRequest = {};
+    if (quest.title !== draft.title) delta.title = draft.title;
+    if (quest.summary !== draft.summary) delta.summary = draft.summary;
+    if (quest.details !== draft.details) delta.details = draft.details;
+    if (quest.status !== draft.status) delta.status = draft.status;
+    return delta;
+  };
+  let draftDelta = $derived(calculateDeltaDraft(draft, quest));
+  let editsMade = $derived(Object.keys(draftDelta).length !== 0);
 
   let saveError = $state('');
   let savingIcon: 'pending' | 'loading' | 'success' = $state('pending');
@@ -28,14 +32,9 @@
     saveError = '';
     savingIcon = 'loading';
 
-    const delta: UpdateQuestRequest = {};
-    if (quest.title !== draft.title) delta.title = draft.title;
-    if (quest.description !== draft.description) delta.description = draft.description;
-    if (quest.status !== draft.status) delta.status = draft.status;
+    if (!editsMade) return;
 
-    if (Object.keys(delta).length === 0) return;
-
-    const response = await updateQuest(quest.questId, delta);
+    const response = await updateQuest(quest.questId, draftDelta);
 
     if (!response.ok) {
       saveError = await response.text();
@@ -55,12 +54,14 @@
     draft = { ...quest };
   };
 
+  const updateFormId = 'update-quest-form';
+
   const listStyle = 'flex flex-2 flex-col gap-2 self-start rounded-3xl bg-card p-3';
   const triggerStyle = cn(navButtonStyle(), 'flex h-10 gap-2 px-4 text-lg font-medium');
   const contentStyle = 'flex flex-7 flex-col gap-4 self-start rounded-3xl bg-card p-6';
 </script>
 
-<form id="update-quest-form" onsubmit={update}></form>
+<form id={updateFormId} onsubmit={update}></form>
 
 <Tabs.Root value="general" orientation="vertical" class="flex gap-6">
   <Tabs.List class={listStyle}>
@@ -78,5 +79,5 @@
 </Tabs.Root>
 
 {#if editsMade}
-  <QuestEditorUnsavedChanges {reset} {saveError} {savingIcon} />
+  <QuestEditorUnsavedChanges {updateFormId} {reset} {saveError} {savingIcon} />
 {/if}

@@ -8,22 +8,25 @@
 
   let { draft = $bindable() }: { draft: Quest } = $props();
 
-  let descriptionPreview = $state(false);
+  let detailPreview = $state(false);
 </script>
 
 <h1 class="text-2xl font-bold">Title</h1>
 <Input placeholder="Enter title here." bind:value={draft.title} />
 
+<h1 class="text-2xl font-bold">Summary</h1>
+<Input placeholder="Enter summary here." bind:value={draft.summary} />
+
 <div class="flex gap-4">
-  <h1 class="text-2xl font-bold">Description</h1>
+  <h1 class="text-2xl font-bold">Details</h1>
   <Toggle
     class="transition-all active:scale-95"
     aria-label="Toggle markdown preview"
     variant="outline"
     size="sm"
-    bind:pressed={descriptionPreview}
+    bind:pressed={detailPreview}
   >
-    {#if descriptionPreview}
+    {#if detailPreview}
       <Eye />
     {:else}
       <EyeClosed />
@@ -32,14 +35,14 @@
   </Toggle>
 </div>
 
-{#if descriptionPreview}
+{#if detailPreview}
   <div class="prose min-h-64 max-w-none rounded-xl border p-10 prose-invert">
-    <SvelteMarkdown source={draft.description} />
+    <SvelteMarkdown source={draft.details} />
   </div>
 {:else}
   <Textarea
     class="min-h-64 font-mono wrap-anywhere"
-    bind:value={draft.description}
+    bind:value={draft.details}
     placeholder="Enter description here. Markdown is enabled!"
   />
 {/if}
