@@ -20,7 +20,7 @@ pub async fn root() -> Result<Router<AppState>> {
 
 async fn users() -> Result<Router<AppState>> {
     let router = Router::new()
-        .route("/{id}", get(user::get_from_url))
+        .route("/{id}", get(user::get))
         .route("/me", get(user::get_me))
         .route("/resolve/{handle}", get(user::resolve_handle_to_id));
     Ok(router)
@@ -29,7 +29,7 @@ async fn users() -> Result<Router<AppState>> {
 async fn quests() -> Result<Router<AppState>> {
     let router = Router::new()
         .route("/", post(quest::create))
-        .route("/{id}", get(quest::get_from_url))
+        .route("/{id}", get(quest::get))
         .route("/{id}", patch(quest::update));
     Ok(router)
 }

@@ -2,21 +2,14 @@ use axum::{
     extract::{Query, State},
     response::Redirect,
 };
-use http::StatusCode;
 use oauth2::{CsrfToken, PkceCodeChallenge, PkceCodeVerifier, Scope, TokenResponse};
 use reqwest::Client;
 use serde::Deserialize;
 use tower_sessions::Session;
 
-use crate::{
-    AppState,
-    handlers::helper::{SimpResp, resolve_session_key},
-};
+use crate::{AppState, BackendError, BackendResult};
 
-pub async fn github_login(
-    State(state): State<AppState>,
-    session: Session,
-) -> Result<Redirect, (StatusCode, &'static str)> {
+pub async fn github_login(State(state): State<AppState>, session: Session) -> BackendResult<Redirect> {
     let (pkce_challenge, pkce_verifier) = PkceCodeChallenge::new_random_sha256();
     let (auth_url, csrf_token) = state
         .oauth_client
@@ -26,21 +19,9 @@ pub async fn github_login(
         .set_pkce_challenge(pkce_challenge) // Send the PKCE challenge
         .url();
 
-    match session.insert("csrf_token", csrf_token.secret()).await {
-        Ok(_) => {}
-        Err(e) => {
-            tracing::error!("Session error: {e}");
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, "Session error"));
-        }
-    };
+    session.insert("csrf_token", csrf_token.secret()).await?;
 
-    match session.insert("pkce_verifier", pkce_verifier.secret()).await {
-        Ok(_) => {}
-        Err(e) => {
-            tracing::error!("Session error: {e}");
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, "Session error"));
-        }
-    };
+    session.insert("pkce_verifier", pkce_verifier.secret()).await?;
 
     Ok(Redirect::to(auth_url.as_str()))
 }
@@ -55,88 +36,68 @@ pub async fn github_callback(
     State(state): State<AppState>,
     session: Session,
     Query(query): Query<AuthRequest>,
-) -> SimpResp<Redirect> {
+) -> BackendResult<Redirect> {
     // Check if the received CSRF token is the same as the one we sent
-    let Some(local_state) = resolve_session_key::<String>(&session, "csrf_token").await? else {
-        return Err((StatusCode::BAD_REQUEST, "CSRF token not found in session"));
+    let Some(local_state): Option<String> = session.get("csrf_token").await? else {
+        return Err(BackendError::BadRequest("CSRF token not found in session".to_string()));
     };
     if local_state != query.state {
-        return Err((StatusCode::BAD_REQUEST, "Invalid CSRF token found in session"));
+        return Err(BackendError::BadRequest(
+            "Invalid CSRF token found in session".to_string(),
+        ));
     }
 
     // Use oauth2's reqwest here
-    let oauth2_http_client_result = oauth2::reqwest::ClientBuilder::new()
+    let oauth2_http_client = oauth2::reqwest::ClientBuilder::new()
         // According to oauth2 docs: "Following redirects opens the client up to SSRF vulnerabilities."
         .redirect(oauth2::reqwest::redirect::Policy::none())
-        .build();
-    let oauth2_http_client = match oauth2_http_client_result {
-        Ok(client) => client,
-        Err(e) => {
-            tracing::error!("Http client build error: {e}");
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, "Http client build failed"));
-        }
-    };
+        .build()?;
 
     // Send the local PKCE verifier. This will run in the previously sent PKCE challenge on GitHub servers
     // to check if the client is still who we claim to be.
-    let Some(local_pkce_verifier) = resolve_session_key::<String>(&session, "pkce_verifier").await? else {
-        return Err((StatusCode::BAD_REQUEST, "PKCE verifier not found in session"));
+    let Some(local_pkce_verifier) = session.get("pkce_verifier").await? else {
+        return Err(BackendError::BadRequest(
+            "PKCE verifier not found in session".to_string(),
+        ));
     };
     let to_be_sent_pkce_verifier = PkceCodeVerifier::new(local_pkce_verifier);
 
     // Obtain access to access token.
-    let token_response_result = state
+    let token_response = state
         .oauth_client
         .exchange_code(oauth2::AuthorizationCode::new(query.code))
         .set_pkce_verifier(to_be_sent_pkce_verifier)
         .request_async(&oauth2_http_client)
-        .await;
-    let token_response = match token_response_result {
-        Ok(resp) => resp,
-        Err(e) => {
-            tracing::error!("Oauth Error: {e}");
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, "Oauth token access failed"));
-        }
-    };
+        .await?;
 
     let client = Client::new();
 
-    let gh_user_resp_result = client
+    let gh_user_resp = client
         .get("https://api.github.com/user")
         .header("User-Agent", "town-hall (by zerodrag/town-hall")
         .bearer_auth(token_response.access_token().secret())
         .send()
-        .await;
-    let gh_user_resp = match gh_user_resp_result {
-        Ok(resp) => resp,
-        Err(e) => {
-            tracing::error!("GitHub API fetch error: {e}");
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, "GitHub API fetch failed"));
-        }
-    };
+        .await?;
 
-    let gh_user_result = gh_user_resp.json::<serde_json::Value>().await;
-    let gh_user = match gh_user_result {
-        Ok(user) => user,
-        Err(e) => {
-            tracing::error!("GitHub API response parse error: {e}");
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, "GitHub API response parse failed"));
-        }
-    };
+    #[derive(Deserialize)]
+    struct GitHubUser {
+        id: i64,
+        name: Option<String>,
+        email: Option<String>,
+    }
+    let gh_user = gh_user_resp.json::<GitHubUser>().await?;
 
-    let user_info = (|| -> Option<(i64, &str, &str)> {
-        Some((
-            gh_user["id"].as_i64()?,
-            gh_user["name"].as_str()?,
-            gh_user["email"].as_str()?,
-        ))
-    })();
+    let (github_id, handle, email) = (
+        gh_user.id,
+        gh_user
+            .name
+            .ok_or_else(|| BackendError::BadRequest("GitHub user has no name".to_string()))?,
+        gh_user
+            .email
+            .ok_or_else(|| BackendError::BadRequest("GitHub user has no email".to_string()))?,
+    );
 
-    let Some((github_id, handle, email)) = user_info else {
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, "GitHub API response parse failed"));
-    };
-
-    let internal_user_id_result: Result<i64, _> = sqlx::query_scalar!(
+    let internal_user_id: i64 = sqlx::query_scalar!(
         "INSERT INTO users (github_id, handle, email) \
         VALUES ($1, $2, $3) \
         ON CONFLICT (github_id) \
@@ -149,23 +110,9 @@ pub async fn github_callback(
         email
     )
     .fetch_one(&state.db_pool)
-    .await;
-    let internal_user_id = match internal_user_id_result {
-        Ok(id) => id,
-        Err(e) => {
-            tracing::error!("Database Error: {e}");
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, "Database Error"));
-        }
-    };
+    .await?;
 
-    let session_insert_result = session.insert("user_id", internal_user_id).await;
-    match session_insert_result {
-        Ok(_) => {}
-        Err(e) => {
-            tracing::error!("Session error: {e}");
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, "Session error"));
-        }
-    }
+    session.insert("user_id", internal_user_id).await?;
 
     Ok(Redirect::to(&format!(
         "{}/user/{internal_user_id}/{handle}",

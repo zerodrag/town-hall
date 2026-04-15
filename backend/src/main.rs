@@ -1,9 +1,11 @@
+pub mod error;
 pub mod handlers;
 mod router;
 mod state;
 
 use anyhow::Result;
 
+pub use crate::error::{BackendError, BackendResult};
 pub use crate::state::AppState;
 
 use clap::Parser;
