@@ -3,17 +3,19 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
-use axum_valid::Valid;
 use serde::{Deserialize, Serialize};
 use serde_with::{DisplayFromStr, serde_as};
 use sqlx::query_as;
 use tower_sessions::Session;
-use validator::{Validate, ValidationError};
+use validator::Validate;
 
-use crate::{AppState, BackendError, BackendResult, handlers::helper};
+use crate::{
+    AppState, BackendError, BackendResult,
+    handlers::common::{self, NormValJson, Normalize},
+};
 
 #[derive(PartialEq, Debug, Serialize, Deserialize, specta::Type, sqlx::Type)]
-#[sqlx(type_name = "quest_status", rename_all = "lowercase")]
+#[sqlx(type_name = "quest_status", rename_all = "snake_case")]
 #[serde(rename_all = "camelCase")]
 pub enum QuestStatus {
     Draft,
@@ -32,6 +34,7 @@ pub struct Quest {
     title: String,
     summary: String,
     details: String,
+    techs: Vec<String>,
     status: QuestStatus,
     #[serde(with = "time::serde::rfc3339")]
     created_at: time::OffsetDateTime,
@@ -45,7 +48,7 @@ pub async fn get(
 ) -> BackendResult<Json<Quest>> {
     let result = query_as!(
         Quest,
-        "SELECT quest_id, poster_id, title, summary, details, status as \"status: _\", created_at \
+        "SELECT quest_id, poster_id, title, summary, details, techs, status as \"status: _\", created_at \
         FROM quests \
         WHERE quest_id=$1",
         quest_id
@@ -59,7 +62,7 @@ pub async fn get(
                 return Ok(Json(quest));
             }
             // If Quest is owned by current user
-            if let Ok(id) = helper::resolve_me_id(&session).await
+            if let Ok(id) = common::resolve_me_id(&session).await
                 && id == quest.poster_id
             {
                 return Ok(Json(quest));
@@ -71,22 +74,28 @@ pub async fn get(
     }
 }
 
-#[derive(specta::Type, Validate, Deserialize)]
+#[derive(specta::Type, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateQuestRequest {
-    #[validate(custom(function = "validate_title"))]
+    #[validate(length(min = 1, max = 100))]
     pub title: String,
+}
+
+impl Normalize for CreateQuestRequest {
+    fn normalize(&mut self) {
+        self.title = self.title.trim().to_string();
+    }
 }
 
 #[axum::debug_handler]
 pub async fn create(
     session: Session,
     State(state): State<AppState>,
-    Valid(Json(req)): Valid<Json<CreateQuestRequest>>,
+    NormValJson(req): NormValJson<CreateQuestRequest>,
 ) -> BackendResult<Json<i64>> {
     let trimmed_title = req.title.trim();
 
-    let id = helper::resolve_me_id(&session).await?;
+    let id = common::resolve_me_id(&session).await?;
     let quest_id: i64 = sqlx::query_scalar!(
         "INSERT INTO quests (poster_id, title) \
         VALUES ($1, $2) \
@@ -102,7 +111,7 @@ pub async fn create(
 #[derive(specta::Type, Validate, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateQuestRequest {
-    #[validate(custom(function = "validate_title"))]
+    #[validate(length(min = 1, max = 100))]
     #[specta(optional)]
     pub title: Option<String>,
     #[specta(optional)]
@@ -111,6 +120,14 @@ pub struct UpdateQuestRequest {
     pub details: Option<String>,
     #[specta(optional)]
     pub status: Option<QuestStatus>,
+    #[specta(optional)]
+    pub techs: Option<Vec<String>>,
+}
+
+impl Normalize for UpdateQuestRequest {
+    fn normalize(&mut self) {
+        self.title.as_mut().map(|t| t.trim().to_string());
+    }
 }
 
 #[axum::debug_handler]
@@ -118,38 +135,28 @@ pub async fn update(
     session: Session,
     Path(quest_id): Path<i64>,
     State(state): State<AppState>,
-    Valid(Json(request)): Valid<Json<UpdateQuestRequest>>,
+    NormValJson(request): NormValJson<UpdateQuestRequest>,
 ) -> BackendResult<StatusCode> {
-    let poster_id = helper::resolve_me_id(&session).await?;
-    let trim_title = request.title.map(|s| s.trim().to_string());
+    let poster_id = common::resolve_me_id(&session).await?;
     sqlx::query!(
         "UPDATE quests \
         SET \
             title = COALESCE($1, title), \
             summary = COALESCE($2, summary), \
             details = COALESCE($3, details), \
-            status = COALESCE($4, status) \
-        WHERE quest_id = $5
-        AND poster_id = $6",
-        trim_title,
+            status = COALESCE($4, status), \
+            techs = COALESCE($5, techs) \
+        WHERE quest_id = $6
+        AND poster_id = $7",
+        request.title,
         request.summary,
         request.details,
         request.status as Option<QuestStatus>,
+        request.techs.as_deref(),
         quest_id,
         poster_id
     )
     .fetch_optional(&state.db_pool)
     .await?;
     Ok(StatusCode::NO_CONTENT)
-}
-
-fn validate_title(title: &str) -> Result<(), ValidationError> {
-    let cleaned_title = title.trim();
-    if !(1..=100).contains(&cleaned_title.len()) {
-        return Err(ValidationError::new("Title must be 1 to 100 characters long"));
-    }
-    if cleaned_title == "Never gonna give you up" {
-        return Err(ValidationError::new("Title must not be a rick roll"));
-    }
-    Ok(())
 }

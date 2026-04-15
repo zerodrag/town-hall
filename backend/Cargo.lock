@@ -207,16 +207,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "axum-valid"
-version = "0.24.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3881b4b05ede123ff3c82f41c63e47425443556365b47b2ba4d05098a5bd2645"
-dependencies = [
- "axum",
- "validator",
-]
-
-[[package]]
 name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2026,7 +2016,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2672,7 +2662,7 @@ dependencies = [
  "getrandom 0.3.4",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2985,7 +2975,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "axum",
- "axum-valid",
  "clap",
  "dotenvy",
  "http",

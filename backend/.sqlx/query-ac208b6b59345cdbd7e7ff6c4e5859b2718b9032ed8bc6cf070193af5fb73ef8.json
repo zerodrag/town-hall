@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE quests SET title = COALESCE($1, title), summary = COALESCE($2, summary), details = COALESCE($3, details), status = COALESCE($4, status) WHERE quest_id = $5\n        AND poster_id = $6",
+  "query": "UPDATE quests SET title = COALESCE($1, title), summary = COALESCE($2, summary), details = COALESCE($3, details), status = COALESCE($4, status), techs = COALESCE($5, techs) WHERE quest_id = $6\n        AND poster_id = $7",
   "describe": {
     "columns": [],
     "parameters": {
@@ -20,11 +20,12 @@
             }
           }
         },
+        "TextArray",
         "Int8",
         "Int8"
       ]
     },
     "nullable": []
   },
-  "hash": "e1d3f7a7f284678e62b8ab34968733da1d0a6377a03062c2e3c73777b318ea5b"
+  "hash": "ac208b6b59345cdbd7e7ff6c4e5859b2718b9032ed8bc6cf070193af5fb73ef8"
 }

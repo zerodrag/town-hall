@@ -7,7 +7,7 @@ use serde_with::{DisplayFromStr, serde_as};
 use sqlx::PgPool;
 use tower_sessions::Session;
 
-use crate::{AppState, BackendError, handlers::helper::resolve_me_id};
+use crate::{AppState, BackendError, handlers::common::resolve_me_id};
 
 #[serde_as]
 #[derive(Serialize, specta::Type)]

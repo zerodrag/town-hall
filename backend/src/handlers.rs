@@ -1,5 +1,5 @@
 pub mod auth;
-mod helper;
+mod common;
 pub mod quest;
 pub mod user;
 

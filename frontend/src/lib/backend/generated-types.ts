@@ -9,6 +9,7 @@ export type Quest = {
 	title: string,
 	summary: string,
 	details: string,
+	techs: string[],
 	status: QuestStatus,
 	createdAt: string,
 };
@@ -20,6 +21,7 @@ export type UpdateQuestRequest = {
 	summary?: string | null,
 	details?: string | null,
 	status?: QuestStatus | null,
+	techs?: string[] | null,
 };
 
 export type User = {

@@ -27,20 +27,24 @@ pub enum BackendError {
     Unauthorized,
     #[error("Bad Request: {0}")]
     BadRequest(String),
+    #[error(transparent)]
+    ValidationError(#[from] validator::ValidationErrors),
 }
 
 impl IntoResponse for BackendError {
     fn into_response(self) -> axum::response::Response {
-        tracing::error!(error = %self, "request failed");
         let status = match &self {
             BackendError::SqlxError(_)
             | BackendError::SessionError(_)
             | BackendError::ReqwestError(_)
             | BackendError::OAuthRequestTokenError(_)
-            | BackendError::SerdeJsonError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            | BackendError::SerdeJsonError(_) => {
+                tracing::error!(error = ?self, "request failed");
+                StatusCode::INTERNAL_SERVER_ERROR
+            }
             BackendError::NotFound(_) => StatusCode::NOT_FOUND,
             BackendError::Unauthorized => StatusCode::UNAUTHORIZED,
-            BackendError::BadRequest(_) => StatusCode::BAD_REQUEST,
+            BackendError::BadRequest(_) | BackendError::ValidationError(_) => StatusCode::BAD_REQUEST,
         };
         (status, self.to_string()).into_response()
     }
