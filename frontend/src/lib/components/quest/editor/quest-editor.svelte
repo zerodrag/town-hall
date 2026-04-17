@@ -93,3 +93,5 @@
 {#if editsMade}
   <QuestEditorUnsavedChanges {updateFormId} {reset} {saveError} {savingIcon} />
 {/if}
+
+<div class="h-10"></div>
