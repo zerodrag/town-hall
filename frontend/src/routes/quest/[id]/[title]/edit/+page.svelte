@@ -13,7 +13,7 @@
 
 <div class="flex flex-col gap-2">
   <div class="flex justify-center">
-    <QuestCard title={draft.title} summary={draft.summary} author={data.me} />
+    <QuestCard title={draft.title} summary={draft.summary} techs={draft.techs} author={data.me} />
   </div>
   <QuestEditor {quest} {draft} />
 </div>

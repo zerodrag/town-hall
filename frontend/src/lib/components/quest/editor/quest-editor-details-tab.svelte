@@ -9,4 +9,4 @@
   <h1 class="text-2xl font-semibold">Details</h1>
 </div>
 
-<MarkdownEditor markdown={draft.details} />
+<MarkdownEditor bind:markdown={draft.details} />
