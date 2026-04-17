@@ -5,7 +5,7 @@
   let { title, summary, author }: { title: string; summary: string; author: User } = $props();
 </script>
 
-<div class="w-4xl rounded-3xl bg-card p-4">
+<div class="h-28 w-4xl rounded-3xl bg-card p-4">
   <div class="flex items-center gap-2">
     <div class="text-xl font-medium">
       {title}

@@ -22,8 +22,8 @@ pub trait Normalize {
 }
 
 /// Extractor that normalizes then validates
-pub struct NormValJson<T>(pub T);
-impl<T, S> FromRequest<S> for NormValJson<T>
+pub struct NormValidJson<T>(pub T);
+impl<T, S> FromRequest<S> for NormValidJson<T>
 where
     T: DeserializeOwned + Validate + Normalize,
     S: Send + Sync,
@@ -37,6 +37,10 @@ where
         value.normalize();
         value.validate().map_err(|e| BackendError::ValidationError(e))?;
 
-        Ok(NormValJson(value))
+        Ok(NormValidJson(value))
     }
+}
+
+pub fn trim_whitespace(s: &str) -> String {
+    s.split_whitespace().collect::<Vec<&str>>().join(" ")
 }

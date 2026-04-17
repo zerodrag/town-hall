@@ -3,15 +3,16 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_with::{DisplayFromStr, serde_as};
 use sqlx::query_as;
 use tower_sessions::Session;
-use validator::Validate;
+use validator::{Validate, ValidationError};
 
 use crate::{
     AppState, BackendError, BackendResult,
-    handlers::common::{self, NormValJson, Normalize},
+    handlers::common::{self, NormValidJson, Normalize},
 };
 
 #[derive(PartialEq, Debug, Serialize, Deserialize, specta::Type, sqlx::Type)]
@@ -91,7 +92,7 @@ impl Normalize for CreateQuestRequest {
 pub async fn create(
     session: Session,
     State(state): State<AppState>,
-    NormValJson(req): NormValJson<CreateQuestRequest>,
+    NormValidJson(req): NormValidJson<CreateQuestRequest>,
 ) -> BackendResult<Json<i64>> {
     let trimmed_title = req.title.trim();
 
@@ -120,13 +121,39 @@ pub struct UpdateQuestRequest {
     pub details: Option<String>,
     #[specta(optional)]
     pub status: Option<QuestStatus>,
+    #[validate(custom(function = "validate_techs"))]
     #[specta(optional)]
     pub techs: Option<Vec<String>>,
 }
 
+fn validate_techs(techs: &Vec<String>) -> Result<(), ValidationError> {
+    if techs.len() > 10 {
+        let err = ValidationError::new("invalid_tech_count");
+        return Err(err.with_message("There must be no more than 10 Techs".into()));
+    }
+    if !techs.iter().all_unique() {
+        let err = ValidationError::new("techs_not_all_unique");
+        return Err(err.with_message("Techs must be all unique".into()));
+    }
+    for tech in techs {
+        if tech.len() > 15 {
+            let err = ValidationError::new("tech_invalid_length");
+            return Err(err.with_message("Tech must be no longer than 15 characters".into()));
+        }
+        if !tech.chars().all(|c| c.is_alphanumeric() || c == '-') {
+            let err = ValidationError::new("tech_invalid_character");
+            return Err(err.with_message("Tech must not contain non-alphanumeric and non-hyphen (-) characters".into()));
+        }
+    }
+    Ok(())
+}
+
 impl Normalize for UpdateQuestRequest {
     fn normalize(&mut self) {
-        self.title.as_mut().map(|t| t.trim().to_string());
+        self.title.as_mut().map(|title| common::trim_whitespace(title));
+        self.techs
+            .as_mut()
+            .map(|techs| techs.iter().map(|tech| common::trim_whitespace(tech)));
     }
 }
 
@@ -135,7 +162,7 @@ pub async fn update(
     session: Session,
     Path(quest_id): Path<i64>,
     State(state): State<AppState>,
-    NormValJson(request): NormValJson<UpdateQuestRequest>,
+    NormValidJson(request): NormValidJson<UpdateQuestRequest>,
 ) -> BackendResult<StatusCode> {
     let poster_id = common::resolve_me_id(&session).await?;
     sqlx::query!(

@@ -11,7 +11,7 @@
 
 <DropdownMenu.Root>
   <DropdownMenu.Trigger>
-    <Avatar.Root class="cursor-pointer transition-all hover:brightness-80 active:scale-90">
+    <Avatar.Root class="cursor-pointer transition hover:brightness-80 active:scale-90">
       <Avatar.Image src="https://avatars.githubusercontent.com/u/{user.githubId}" alt="@{user.handle}" />
       <Avatar.Fallback>{user.handle.slice(0, 2).toUpperCase()}</Avatar.Fallback>
     </Avatar.Root>

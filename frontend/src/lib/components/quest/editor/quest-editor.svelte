@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Info, Tags } from '@lucide/svelte';
+  import { IdCard, Tags, TextAlignStart } from '@lucide/svelte';
   import { invalidate } from '$app/navigation';
   import { BACKEND_URL } from '$lib/backend/common';
   import type { Quest, UpdateQuestRequest } from '$lib/backend/generated-types';
@@ -7,17 +7,21 @@
   import { navButtonStyle } from '$lib/styles/button';
   import { cn } from '$lib/utils';
   import { Tabs } from 'bits-ui';
-  import QuestEditorGeneralTab from './quest-editor-general-tab.svelte';
+  import QuestEditorCardTab from './quest-editor-card-tab.svelte';
+  import QuestEditorDetailsTab from './quest-editor-details-tab.svelte';
+  import QuestEditorTechsTab from './quest-editor-techs-tab.svelte';
   import QuestEditorUnsavedChanges from './quest-editor-unsaved-changes.svelte';
 
   let { quest, draft = $bindable() }: { quest: Quest; draft: Quest } = $props();
-
 
   const calculateDeltaDraft = (draft: Quest, quest: Quest) => {
     const delta: UpdateQuestRequest = {};
     if (quest.title !== draft.title) delta.title = draft.title;
     if (quest.summary !== draft.summary) delta.summary = draft.summary;
     if (quest.details !== draft.details) delta.details = draft.details;
+    if (!(quest.techs.length === draft.techs.length && quest.techs.every((val, index) => val === draft.techs[index]))) {
+      delta.techs = draft.techs;
+    }
     if (quest.status !== draft.status) delta.status = draft.status;
     return delta;
   };
@@ -63,19 +67,27 @@
 
 <form id={updateFormId} onsubmit={update}></form>
 
-<Tabs.Root value="general" orientation="vertical" class="flex gap-6">
+<Tabs.Root value="card" orientation="vertical" class="flex gap-6">
   <Tabs.List class={listStyle}>
-    <Tabs.Trigger value="general" class={triggerStyle}>
-      <Info size={20} /> General
+    <Tabs.Trigger value="card" class={triggerStyle}>
+      <IdCard size={20} /> Card
     </Tabs.Trigger>
-    <Tabs.Trigger value="tags" class={triggerStyle}>
-      <Tags size={20} /> Tags
+    <Tabs.Trigger value="details" class={triggerStyle}>
+      <TextAlignStart size={20} /> Details
+    </Tabs.Trigger>
+    <Tabs.Trigger value="techs" class={triggerStyle}>
+      <Tags size={20} /> Techs
     </Tabs.Trigger>
   </Tabs.List>
-  <Tabs.Content class={contentStyle} value="general">
-    <QuestEditorGeneralTab bind:draft />
+  <Tabs.Content class={contentStyle} value="card">
+    <QuestEditorCardTab bind:draft />
   </Tabs.Content>
-  <Tabs.Content class={contentStyle} value="tags">Edit tags here!</Tabs.Content>
+  <Tabs.Content class={contentStyle} value="details">
+    <QuestEditorDetailsTab bind:draft />
+  </Tabs.Content>
+  <Tabs.Content class={contentStyle} value="techs">
+    <QuestEditorTechsTab bind:draft />
+  </Tabs.Content>
 </Tabs.Root>
 
 {#if editsMade}
