@@ -7,10 +7,10 @@
   import { navButtonStyle } from '$lib/styles/button';
   import { cn } from '$lib/utils';
   import { Tabs } from 'bits-ui';
-  import QuestEditorCardTab from './quest-editor-card-tab.svelte';
-  import QuestEditorDetailsTab from './quest-editor-details-tab.svelte';
-  import QuestEditorTechsTab from './quest-editor-techs-tab.svelte';
-  import QuestEditorUnsavedChanges from './quest-editor-unsaved-changes.svelte';
+  import CardTab from './1-card-tab.svelte';
+  import TechsTab from './2-techs-tab.svelte';
+  import DetailsTab from './3-details-tab.svelte';
+  import UnsavedChangesPopup from './unsaved-changes-popup.svelte';
 
   let { quest, draft = $bindable() }: { quest: Quest; draft: Quest } = $props();
 
@@ -72,26 +72,26 @@
     <Tabs.Trigger value="card" class={triggerStyle}>
       <IdCard size={20} /> Card
     </Tabs.Trigger>
-    <Tabs.Trigger value="details" class={triggerStyle}>
-      <TextAlignStart size={20} /> Details
-    </Tabs.Trigger>
     <Tabs.Trigger value="techs" class={triggerStyle}>
       <Tags size={20} /> Techs
     </Tabs.Trigger>
+    <Tabs.Trigger value="details" class={triggerStyle}>
+      <TextAlignStart size={20} /> Details
+    </Tabs.Trigger>
   </Tabs.List>
   <Tabs.Content class={contentStyle} value="card">
-    <QuestEditorCardTab bind:draft />
-  </Tabs.Content>
-  <Tabs.Content class={contentStyle} value="details">
-    <QuestEditorDetailsTab bind:draft />
+    <CardTab bind:draft />
   </Tabs.Content>
   <Tabs.Content class={contentStyle} value="techs">
-    <QuestEditorTechsTab bind:draft />
+    <TechsTab bind:draft />
+  </Tabs.Content>
+  <Tabs.Content class={contentStyle} value="details">
+    <DetailsTab bind:draft />
   </Tabs.Content>
 </Tabs.Root>
 
 {#if editsMade}
-  <QuestEditorUnsavedChanges {updateFormId} {reset} {saveError} {savingIcon} />
+  <UnsavedChangesPopup {updateFormId} {reset} {saveError} {savingIcon} />
 {/if}
 
 <div class="h-10"></div>

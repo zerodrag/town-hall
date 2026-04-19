@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Quest } from '$lib/backend/generated-types.js';
-  import { QuestCard } from '$lib/components/quest/card';
   import { QuestEditor } from '$lib/components/quest/editor';
+  import QuestCard from '$lib/components/quest/quest-card.svelte';
 
   let { data } = $props();
   let quest = $derived(data.quest);
@@ -13,7 +13,7 @@
 
 <div class="flex flex-col gap-2">
   <div class="flex justify-center">
-    <QuestCard title={draft.title} summary={draft.summary} techs={draft.techs} author={data.me} />
+    <QuestCard title={draft.title} summary={draft.summary} techs={draft.techs} author={data.me} enableLink={true} />
   </div>
   <QuestEditor {quest} {draft} />
 </div>
