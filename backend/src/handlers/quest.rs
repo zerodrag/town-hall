@@ -6,13 +6,16 @@ use axum::{
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_with::{DisplayFromStr, serde_as};
-use sqlx::query_as;
+use sqlx::query;
 use tower_sessions::Session;
 use validator::{Validate, ValidationError};
 
 use crate::{
     AppState, BackendError, BackendResult,
-    handlers::common::{self, NormValidJson, Normalize},
+    handlers::{
+        common::{self, NormValidJson, Normalize},
+        user::User,
+    },
 };
 
 #[derive(PartialEq, Debug, Serialize, Deserialize, specta::Type, sqlx::Type)]
@@ -29,16 +32,15 @@ pub enum QuestStatus {
 #[serde(rename_all = "camelCase")]
 pub struct Quest {
     #[serde_as(as = "DisplayFromStr")]
-    quest_id: i64,
-    #[serde_as(as = "DisplayFromStr")]
-    poster_id: i64,
-    title: String,
-    summary: String,
-    details: String,
-    techs: Vec<String>,
-    status: QuestStatus,
+    pub quest_id: i64,
+    pub poster: User,
+    pub title: String,
+    pub summary: String,
+    pub details: String,
+    pub techs: Vec<String>,
+    pub status: QuestStatus,
     #[serde(with = "time::serde::rfc3339")]
-    created_at: time::OffsetDateTime,
+    pub created_at: time::OffsetDateTime,
 }
 
 #[axum::debug_handler]
@@ -47,32 +49,53 @@ pub async fn get(
     Path(quest_id): Path<i64>,
     State(state): State<AppState>,
 ) -> BackendResult<Json<Quest>> {
-    let result = query_as!(
-        Quest,
-        "SELECT quest_id, poster_id, title, summary, details, techs, status as \"status: _\", created_at \
-        FROM quests \
-        WHERE quest_id=$1",
+    let result = query!(
+        "SELECT q.quest_id, q.title, q.summary, q.details, q.techs, \
+        q.status as \"status: QuestStatus\", q.created_at as quest_created_at, \
+        u.user_id, u.github_id, u.handle, u.created_at as user_created_at \
+        FROM quests q \
+        JOIN users u ON u.user_id = q.poster_id
+        WHERE q.quest_id=$1",
         quest_id
     )
     .fetch_one(&state.db_pool)
-    .await;
-    match result {
-        Ok(quest) => {
-            // If Quest is public
-            if quest.status != QuestStatus::Draft {
-                return Ok(Json(quest));
-            }
-            // If Quest is owned by current user
-            if let Ok(id) = common::resolve_me_id(&session).await
-                && id == quest.poster_id
-            {
-                return Ok(Json(quest));
-            }
-            Err(BackendError::NotFound("Quest".to_string()))
+    .await
+    .map_err(|e| {
+        if let sqlx::Error::RowNotFound = e {
+            BackendError::NotFound("Quest".to_string())
+        } else {
+            e.into()
         }
-        Err(sqlx::Error::RowNotFound) => Err(BackendError::NotFound("Quest".to_string())),
-        Err(e) => Err(e.into()),
+    })?;
+
+    let quest = Quest {
+        quest_id: result.quest_id,
+        poster: User {
+            user_id: result.user_id,
+            github_id: result.github_id,
+            handle: result.handle,
+            created_at: result.user_created_at,
+        },
+        title: result.title,
+        summary: result.summary,
+        details: result.details,
+        techs: result.techs,
+        status: result.status,
+        created_at: result.quest_created_at,
+    };
+
+    // If Quest is public
+    if quest.status != QuestStatus::Draft {
+        return Ok(Json(quest));
     }
+    // If Quest is owned by current user
+    if let Ok(id) = common::resolve_me_id(&session).await
+        && id == quest.poster.user_id
+    {
+        return Ok(Json(quest));
+    }
+    // If Quest is neither public nor owned by user
+    Err(BackendError::NotFound("Quest".to_string()))
 }
 
 #[derive(specta::Type, Deserialize, Validate)]
@@ -115,8 +138,10 @@ pub struct UpdateQuestRequest {
     #[validate(length(min = 1, max = 100))]
     #[specta(optional)]
     pub title: Option<String>,
+    #[validate(length(max = 300))]
     #[specta(optional)]
     pub summary: Option<String>,
+    #[validate(length(max = 10000))]
     #[specta(optional)]
     pub details: Option<String>,
     #[specta(optional)]

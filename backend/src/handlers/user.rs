@@ -14,12 +14,12 @@ use crate::{AppState, BackendError, handlers::common::resolve_me_id};
 #[serde(rename_all = "camelCase")]
 pub struct User {
     #[serde_as(as = "DisplayFromStr")]
-    user_id: i64,
+    pub user_id: i64,
     #[serde_as(as = "DisplayFromStr")]
-    github_id: i64,
-    handle: String,
+    pub github_id: i64,
+    pub handle: String,
     #[serde(with = "time::serde::rfc3339")]
-    created_at: time::OffsetDateTime,
+    pub created_at: time::OffsetDateTime,
 }
 
 #[axum::debug_handler]

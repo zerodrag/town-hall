@@ -5,7 +5,7 @@ export type CreateQuestRequest = {
 
 export type Quest = {
 	questId: string,
-	posterId: string,
+	poster: User,
 	title: string,
 	summary: string,
 	details: string,

@@ -4,7 +4,7 @@
 
   const { data } = $props();
   let quest = $derived(data.quest);
-  let me_owns_quest = $derived(data.me?.userId === quest.posterId);
+  let me_owns_quest = $derived(data.me?.userId === quest.poster.userId);
 </script>
 
 <h1 class="text-4xl font-extrabold">{quest.title}</h1>
