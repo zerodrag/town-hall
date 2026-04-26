@@ -1,3 +1,1 @@
-import MarkdownEditor from './markdown-editor.svelte';
-
-export { MarkdownEditor };
+export { default as MarkdownEditor } from './markdown-editor.svelte';

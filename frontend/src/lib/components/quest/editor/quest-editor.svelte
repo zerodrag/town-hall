@@ -72,11 +72,11 @@
     <Tabs.Trigger value="card" class={triggerStyle}>
       <IdCard size={20} /> Card
     </Tabs.Trigger>
-    <Tabs.Trigger value="details" class={triggerStyle}>
-      <TextAlignStart size={20} /> Details
-    </Tabs.Trigger>
     <Tabs.Trigger value="techs" class={triggerStyle}>
       <Tags size={20} /> Techs
+    </Tabs.Trigger>
+    <Tabs.Trigger value="details" class={triggerStyle}>
+      <TextAlignStart size={20} /> Details
     </Tabs.Trigger>
     <Tabs.Trigger value="status" class={triggerStyle}>
       <Rocket size={20} /> Status
@@ -85,11 +85,11 @@
   <Tabs.Content class={contentStyle} value="card">
     <QuestEditorCardTab bind:draft />
   </Tabs.Content>
-  <Tabs.Content class={contentStyle} value="details">
-    <QuestEditorDetailsTab bind:draft />
-  </Tabs.Content>
   <Tabs.Content class={contentStyle} value="techs">
     <QuestEditorTechsTab bind:draft />
+  </Tabs.Content>
+  <Tabs.Content class={contentStyle} value="details">
+    <QuestEditorDetailsTab bind:draft />
   </Tabs.Content>
   <Tabs.Content class={contentStyle} value="status">
     <QuestEditorStatusTab {quest} {editsMade} />

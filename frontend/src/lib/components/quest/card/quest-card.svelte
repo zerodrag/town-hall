@@ -1,6 +1,7 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import type { Quest } from '$lib/backend/generated-types';
+  import TechPill from '../tech-pill.svelte';
 
   let { quest }: { quest: Quest } = $props();
   let author = $derived(quest.poster);
@@ -23,11 +24,7 @@
   </div>
   <div class="flex gap-1">
     {#each quest.techs as tech (tech)}
-      <span
-        class="flex cursor-pointer items-center rounded-xl bg-primary/20 px-2.5 py-0.5 text-sm font-medium text-primary transition select-none active:scale-90"
-      >
-        {tech}
-      </span>
+      <TechPill {tech} />
     {/each}
   </div>
 </div>

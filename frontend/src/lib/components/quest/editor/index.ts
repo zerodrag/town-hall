@@ -1,3 +1,1 @@
-import QuestEditor from './quest-editor.svelte';
-
-export { QuestEditor };
+export { default as QuestEditor } from './quest-editor.svelte';

@@ -1,3 +1,1 @@
-import QuestCard from './quest-card.svelte';
-
-export { QuestCard };
+export { default as QuestCard } from './quest-card.svelte';

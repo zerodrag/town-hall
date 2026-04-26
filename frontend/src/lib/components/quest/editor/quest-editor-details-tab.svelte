@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Quest } from '$lib/backend/generated-types';
-  import { MarkdownEditor } from '../markdown';
+  import MarkdownEditor from '../markdown-editor.svelte';
 
   let { draft = $bindable() }: { draft: Quest } = $props();
 </script>
