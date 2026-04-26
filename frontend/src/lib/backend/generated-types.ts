@@ -16,6 +16,18 @@ export type Quest = {
 
 export type QuestStatus = "draft" | "ongoing" | "solved";
 
+export type SearchQuestParams = {
+	query: string | null,
+	techs: string[] | null,
+	page: number | null,
+	limit: number | null,
+};
+
+export type SearchQuestResult = {
+	total: string,
+	quests: Quest[],
+};
+
 export type UpdateQuestRequest = {
 	title?: string | null,
 	summary?: string | null,

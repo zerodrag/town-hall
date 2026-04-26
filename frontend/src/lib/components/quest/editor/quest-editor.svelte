@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { IdCard, Tags, TextAlignStart } from '@lucide/svelte';
+  import { IdCard, Rocket, Tags, TextAlignStart } from '@lucide/svelte';
   import { invalidate } from '$app/navigation';
   import { BACKEND_URL } from '$lib/backend/common';
   import type { Quest, UpdateQuestRequest } from '$lib/backend/generated-types';
@@ -9,6 +9,7 @@
   import { Tabs } from 'bits-ui';
   import QuestEditorCardTab from './quest-editor-card-tab.svelte';
   import QuestEditorDetailsTab from './quest-editor-details-tab.svelte';
+  import QuestEditorStatusTab from './quest-editor-status-tab.svelte';
   import QuestEditorTechsTab from './quest-editor-techs-tab.svelte';
   import QuestEditorUnsavedChanges from './quest-editor-unsaved-changes.svelte';
 
@@ -22,7 +23,6 @@
     if (!(quest.techs.length === draft.techs.length && quest.techs.every((val, index) => val === draft.techs[index]))) {
       delta.techs = draft.techs;
     }
-    if (quest.status !== draft.status) delta.status = draft.status;
     return delta;
   };
   let draftDelta = $derived(calculateDeltaDraft(draft, quest));
@@ -78,6 +78,9 @@
     <Tabs.Trigger value="techs" class={triggerStyle}>
       <Tags size={20} /> Techs
     </Tabs.Trigger>
+    <Tabs.Trigger value="status" class={triggerStyle}>
+      <Rocket size={20} /> Status
+    </Tabs.Trigger>
   </Tabs.List>
   <Tabs.Content class={contentStyle} value="card">
     <QuestEditorCardTab bind:draft />
@@ -87,6 +90,9 @@
   </Tabs.Content>
   <Tabs.Content class={contentStyle} value="techs">
     <QuestEditorTechsTab bind:draft />
+  </Tabs.Content>
+  <Tabs.Content class={contentStyle} value="status">
+    <QuestEditorStatusTab {quest} {editsMade} />
   </Tabs.Content>
 </Tabs.Root>
 

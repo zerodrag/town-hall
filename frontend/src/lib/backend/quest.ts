@@ -1,11 +1,10 @@
 import { fetchBackend } from './common';
-import type { CreateQuestRequest, UpdateQuestRequest } from './generated-types';
+import type { CreateQuestRequest, SearchQuestParams, UpdateQuestRequest } from './generated-types';
 
 export async function getQuest(customFetch: typeof fetch, id: string): Promise<Response> {
   return await fetchBackend(customFetch, `/quests/${id}`);
 }
 
-/// Returns quest id
 export async function createQuest(params: CreateQuestRequest): Promise<Response> {
   return await fetchBackend(fetch, '/quests', {
     method: 'POST',
@@ -20,4 +19,14 @@ export async function updateQuest(id: string, params: UpdateQuestRequest) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params)
   });
+}
+
+export async function discoverQuests(customFetch: typeof fetch, params: SearchQuestParams): Promise<Response> {
+  const searchParams = new URLSearchParams();
+  if (params.query) searchParams.set('query', params.query);
+  if (params.page) searchParams.set('page', String(params.page));
+  if (params.limit) searchParams.set('limit', String(params.limit));
+  params.techs?.forEach((tech) => searchParams.append('techs', tech));
+  const queryString = searchParams.toString();
+  return await fetchBackend(customFetch, `/discover/quests${queryString ? `?${queryString}` : ''}`);
 }
