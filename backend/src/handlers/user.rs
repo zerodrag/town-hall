@@ -39,9 +39,10 @@ pub async fn resolve_handle_to_id(
     state: State<AppState>,
 ) -> crate::BackendResult<Json<i64>> {
     let result: Result<i64, _> = sqlx::query_scalar!(
-        "SELECT user_id \
-        FROM users \
-        WHERE handle=$1",
+        r#"
+        SELECT user_id
+        FROM users
+        WHERE handle=$1"#,
         handle
     )
     .fetch_one(&state.db_pool)
@@ -56,9 +57,10 @@ pub async fn resolve_handle_to_id(
 async fn fetch_from_id(user_id: i64, pool: PgPool) -> crate::BackendResult<Json<User>> {
     let result = sqlx::query_as!(
         User,
-        "SELECT user_id, github_id, handle, created_at \
-        FROM users \
-        WHERE user_id=$1",
+        r#"
+        SELECT user_id, github_id, handle, created_at
+        FROM users
+        WHERE user_id=$1"#,
         user_id
     )
     .fetch_one(&pool)

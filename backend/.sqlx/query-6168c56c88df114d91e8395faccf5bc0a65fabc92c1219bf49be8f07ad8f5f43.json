@@ -1,17 +1,16 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO quests (poster_id, title) VALUES ($1, $2) RETURNING quest_id",
+  "query": "\n        SELECT user_id\n        FROM users\n        WHERE handle=$1",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "quest_id",
+        "name": "user_id",
         "type_info": "Int8"
       }
     ],
     "parameters": {
       "Left": [
-        "Int8",
         "Text"
       ]
     },
@@ -19,5 +18,5 @@
       false
     ]
   },
-  "hash": "79ceea013d24bc3576c932390209968725ab65c4374789a72a77abb77c0212f4"
+  "hash": "6168c56c88df114d91e8395faccf5bc0a65fabc92c1219bf49be8f07ad8f5f43"
 }

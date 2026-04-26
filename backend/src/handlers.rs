@@ -1,5 +1,6 @@
 pub mod auth;
 mod common;
+pub mod normvalid;
 pub mod quest;
 pub mod user;
 

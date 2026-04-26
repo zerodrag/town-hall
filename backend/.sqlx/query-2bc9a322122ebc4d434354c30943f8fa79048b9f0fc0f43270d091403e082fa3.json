@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT q.quest_id, q.title, q.summary, q.details, q.techs, q.status as \"status: QuestStatus\", q.created_at as quest_created_at, u.user_id, u.github_id, u.handle, u.created_at as user_created_at FROM quests q JOIN users u ON u.user_id = q.poster_id\n        WHERE q.quest_id=$1",
+  "query": "\n        SELECT q.quest_id, q.title, q.summary, q.details, q.techs,\n        q.status as \"status: QuestStatus\", q.created_at as quest_created_at,\n        u.user_id, u.github_id, u.handle, u.created_at as user_created_at\n        FROM quests q\n        JOIN users u ON u.user_id = q.poster_id\n        WHERE q.quest_id=$1",
   "describe": {
     "columns": [
       {
@@ -89,5 +89,5 @@
       false
     ]
   },
-  "hash": "179bca32dca6a2124f2dcf977a51548ab4380e9996356bf00385f2fba5bfd286"
+  "hash": "2bc9a322122ebc4d434354c30943f8fa79048b9f0fc0f43270d091403e082fa3"
 }

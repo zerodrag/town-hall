@@ -98,13 +98,14 @@ pub async fn github_callback(
     );
 
     let internal_user_id: i64 = sqlx::query_scalar!(
-        "INSERT INTO users (github_id, handle, email) \
-        VALUES ($1, $2, $3) \
-        ON CONFLICT (github_id) \
-        DO UPDATE SET \
-            handle = EXCLUDED.handle, \
-            email = EXCLUDED.email \
-        RETURNING user_id",
+        r#"
+        INSERT INTO users (github_id, handle, email)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (github_id)
+        DO UPDATE SET
+            handle = EXCLUDED.handle,
+            email = EXCLUDED.email
+            RETURNING user_id"#,
         github_id,
         handle,
         email

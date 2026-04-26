@@ -44,7 +44,7 @@ Root `.sqruff` configures sqruff with `dialect = postgres` for migration files.
 - **Specta** collects types annotated `#[derive(specta::Type)]` and exports TypeScript at startup
 - **GitHub OAuth2** with PKCE flow via `oauth2` crate
 - **Sessions**: PostgreSQL-backed via `tower-sessions-sqlx-store`, `SameSite::Lax`
-- **Validation**: `validator` crate with custom `NormValidJson` extractor that normalizes then validates
+- **Validation**: `validator` crate with custom `NormValid<E>` extractor that normalizes then validates
 
 Routes (defined in `router.rs`):
 ```
@@ -56,6 +56,7 @@ GET  /users/resolve/{handle}  → user::resolve_handle_to_id
 POST /quests                  → quest::create (session-based)
 GET  /quests/{id}             → quest::get (draft quests visible only to owner)
 PATCH /quests/{id}            → quest::update (session-based, owner only)
+GET  /discover/quests         → quest::discover (search quests with pagination)
 GET  /auth/github             → auth::github_login (initiates OAuth)
 GET  /auth/github/callback   → auth::github_callback (exchanges code, upserts user)
 GET  /auth/logout             → auth::logout
@@ -63,7 +64,7 @@ GET  /auth/logout             → auth::logout
 
 Key patterns:
 - i64 IDs are serialized as strings (`serde_as(as = DisplayFromStr)`) for JS BigInt safety; specta exports them as `string`
-- `NormValidJson<T>` is a custom Axum extractor: deserializes JSON, calls `.normalize()`, then `.validate()`
+- `NormValid<Json<T>>` and `NormValid<Query<T>>` are custom Axum extractors: deserialize, call `.normalize()`, then `.validate()`
 - Auth is session-based — `resolve_me_id(&session)` returns user ID or `BackendError::Unauthorized`
 - `BackendError` enum with `IntoResponse` maps domain errors to HTTP status codes
 

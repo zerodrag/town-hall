@@ -12,9 +12,15 @@ pub async fn root() -> Result<Router<AppState>> {
         .fallback(fallback)
         .route("/", get(hello_world))
         .route("/health", get(health))
+        .nest("/discover", discover().await?)
         .nest("/users", users().await?)
         .nest("/quests", quests().await?)
         .nest("/auth", auth().await?);
+    Ok(router)
+}
+
+async fn discover() -> Result<Router<AppState>> {
+    let router = Router::new().route("/quests", get(quest::discover));
     Ok(router)
 }
 

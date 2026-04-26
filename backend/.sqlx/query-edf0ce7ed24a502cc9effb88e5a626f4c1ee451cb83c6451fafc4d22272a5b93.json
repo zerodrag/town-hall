@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT user_id, github_id, handle, created_at FROM users WHERE user_id=$1",
+  "query": "\n        SELECT user_id, github_id, handle, created_at\n        FROM users\n        WHERE user_id=$1",
   "describe": {
     "columns": [
       {
@@ -36,5 +36,5 @@
       false
     ]
   },
-  "hash": "f05063ad4957f5f70d3ff7210f6d666aedbb9ff6aac417662fbc5f6bbf1dc6e7"
+  "hash": "edf0ce7ed24a502cc9effb88e5a626f4c1ee451cb83c6451fafc4d22272a5b93"
 }

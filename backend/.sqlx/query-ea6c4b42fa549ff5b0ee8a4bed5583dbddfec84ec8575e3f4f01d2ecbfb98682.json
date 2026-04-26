@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT COUNT(*)\n        FROM quests\n        WHERE (title <% $1 OR summary <% $1 OR title ILIKE $3 OR summary ILIKE $3)\n            AND techs @> $2\n            AND status != 'draft'",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "TextArray",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "ea6c4b42fa549ff5b0ee8a4bed5583dbddfec84ec8575e3f4f01d2ecbfb98682"
+}

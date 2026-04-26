@@ -1,0 +1,97 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT q.quest_id, q.title, q.summary, q.details, q.techs,\n        q.status as \"status: QuestStatus\", q.created_at as quest_created_at,\n        u.user_id, u.github_id, u.handle, u.created_at as user_created_at\n        FROM quests q\n        JOIN users u ON u.user_id = q.poster_id\n        WHERE (q.title <% $1 OR q.summary <% $1 OR q.title ILIKE $3 OR q.summary ILIKE $3)\n            AND q.techs @> $2\n            AND q.status != 'draft'\n        ORDER BY GREATEST(word_similarity(q.title, $1), word_similarity(q.summary, $1)) DESC\n        LIMIT $4 OFFSET $5",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "quest_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "summary",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "details",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "techs",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "status: QuestStatus",
+        "type_info": {
+          "Custom": {
+            "name": "quest_status",
+            "kind": {
+              "Enum": [
+                "draft",
+                "ongoing",
+                "solved"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "quest_created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "user_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "github_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "handle",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "user_created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "TextArray",
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "76f561e20cf68ceb0f1dbf3b674778fa2850e7b6f9ef62c9fd277a833cb873ce"
+}

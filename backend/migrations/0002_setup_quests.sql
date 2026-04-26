@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 CREATE TYPE quest_status AS ENUM ('draft', 'ongoing', 'solved');
 
 CREATE TABLE quests (
@@ -14,9 +16,9 @@ CREATE TABLE quests (
 
     status quest_status NOT NULL DEFAULT 'draft',
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-
-    CONSTRAINT title_length_is_valid CHECK (
-        char_length (title) BETWEEN 1 AND 100
-    )
+    created_at TIMESTAMPTZ NOT NULL DEFAULT current_timestamp
 );
+
+CREATE INDEX quests_title_trgm_idx ON quests USING GIN (title gin_trgm_ops);
+CREATE INDEX quests_summary_trgm_idx ON quests USING GIN (summary gin_trgm_ops);
+CREATE INDEX quests_techs_gin_idx ON quests USING GIN (techs);
