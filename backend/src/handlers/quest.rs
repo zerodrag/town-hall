@@ -1,6 +1,6 @@
 use axum::{
     Json,
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
 };
 use serde::{Deserialize, Serialize};
@@ -222,7 +222,7 @@ pub struct SearchQuestResult {
 
 pub async fn discover(
     State(state): State<AppState>,
-    NormValid(Query(params)): NormValid<Query<SearchQuestParams>>,
+    NormValid(Json(params)): NormValid<Json<SearchQuestParams>>,
 ) -> BackendResult<Json<SearchQuestResult>> {
     let techs = params.techs.clone().unwrap_or_default();
     let page = params.page.unwrap_or(1) as i64;

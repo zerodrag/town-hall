@@ -22,11 +22,9 @@ export async function updateQuest(id: string, params: UpdateQuestRequest) {
 }
 
 export async function discoverQuests(customFetch: typeof fetch, params: SearchQuestParams): Promise<Response> {
-  const searchParams = new URLSearchParams();
-  if (params.query) searchParams.set('query', params.query);
-  if (params.page) searchParams.set('page', String(params.page));
-  if (params.limit) searchParams.set('limit', String(params.limit));
-  params.techs?.forEach((tech) => searchParams.append('techs', tech));
-  const queryString = searchParams.toString();
-  return await fetchBackend(customFetch, `/discover/quests${queryString ? `?${queryString}` : ''}`);
+  return await fetchBackend(customFetch, `/discover/quests`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params)
+  });
 }

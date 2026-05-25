@@ -1,7 +1,7 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import type { Quest } from '$lib/backend/generated-types';
-  import TechPill from '../tech-pill.svelte';
+  import TechPill from '../techs/tech-pill.svelte';
 
   let { quest }: { quest: Quest } = $props();
   let author = $derived(quest.poster);

@@ -20,7 +20,7 @@ pub async fn root() -> Result<Router<AppState>> {
 }
 
 async fn discover() -> Result<Router<AppState>> {
-    let router = Router::new().route("/quests", get(quest::discover));
+    let router = Router::new().route("/quests", post(quest::discover));
     Ok(router)
 }
 
