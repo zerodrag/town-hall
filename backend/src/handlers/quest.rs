@@ -5,7 +5,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use serde_with::{DisplayFromStr, serde_as};
-use sqlx::{PgPool, query_as, query_scalar};
+use sqlx::{query_as, query_scalar};
 use tower_sessions::Session;
 use validator::Validate;
 
@@ -217,6 +217,7 @@ pub struct SearchQuestParams {
 #[serde(rename_all = "camelCase")]
 pub struct SearchQuestResult {
     pub total: i64,
+    pub is_last_page: bool,
     pub quests: Vec<Quest>,
 }
 
@@ -228,33 +229,20 @@ pub async fn discover(
     let page = params.page.unwrap_or(1) as i64;
     let limit = params.limit.unwrap_or(20) as i64;
     let offset = (page - 1) * limit;
-    if let Some(query) = params.query {
-        discover_search(query, techs, offset, limit, &state.db_pool).await
-    } else {
-        discover_random(techs, offset, limit, &state.db_pool).await
-    }
-}
-
-pub async fn discover_search(
-    query: String,
-    techs: Vec<String>,
-    offset: i64,
-    limit: i64,
-    pool: &PgPool,
-) -> BackendResult<Json<SearchQuestResult>> {
+    let query = params.query.unwrap_or_default();
     let query_pattern = format!("%{}%", query);
     let count = query_scalar!(
         r#"
         SELECT COUNT(*)
         FROM quests
-        WHERE (title <% $1 OR summary <% $1 OR title ILIKE $3 OR summary ILIKE $3)
+        WHERE ($1 = '' OR title <% $1 OR summary <% $1 OR title ILIKE $3 OR summary ILIKE $3)
             AND techs @> $2
             AND status != 'draft'"#,
         query,
         &techs,
         query_pattern
     )
-    .fetch_one(pool)
+    .fetch_one(&state.db_pool)
     .await?
     .unwrap_or(0);
     let result = query_as!(
@@ -265,10 +253,10 @@ pub async fn discover_search(
         u.user_id, u.github_id, u.handle, u.created_at as user_created_at
         FROM quests q
         JOIN users u ON u.user_id = q.poster_id
-        WHERE (q.title <% $1 OR q.summary <% $1 OR q.title ILIKE $3 OR q.summary ILIKE $3)
+        WHERE ($1 = '' OR q.title <% $1 OR q.summary <% $1 OR q.title ILIKE $3 OR q.summary ILIKE $3)
             AND q.techs @> $2
             AND q.status != 'draft'
-        ORDER BY GREATEST(word_similarity(q.title, $1), word_similarity(q.summary, $1)) DESC
+        ORDER BY q.quest_id
         LIMIT $4 OFFSET $5"#,
         query,
         &techs,
@@ -276,47 +264,13 @@ pub async fn discover_search(
         limit,
         offset
     )
-    .fetch_all(pool)
+    .fetch_all(&state.db_pool)
     .await?;
     let quests: Vec<Quest> = result.into_iter().map(Quest::from).collect();
-    Ok(Json(SearchQuestResult { total: count, quests }))
-}
-
-pub async fn discover_random(
-    techs: Vec<String>,
-    offset: i64,
-    limit: i64,
-    pool: &PgPool,
-) -> BackendResult<Json<SearchQuestResult>> {
-    let count = query_scalar!(
-        r#"
-        SELECT COUNT(*)
-        FROM quests
-        WHERE techs @> $1
-            AND status != 'draft'"#,
-        &techs
-    )
-    .fetch_one(pool)
-    .await?
-    .unwrap_or(0);
-    let result = query_as!(
-        QuestRow,
-        r#"
-        SELECT q.quest_id, q.title, q.summary, q.details, q.techs,
-        q.status as "status: QuestStatus", q.created_at as quest_created_at,
-        u.user_id, u.github_id, u.handle, u.created_at as user_created_at
-        FROM quests q
-        JOIN users u ON u.user_id = q.poster_id
-        WHERE q.techs @> $1
-            AND status != 'draft'
-        ORDER BY extract(epoch from q.created_at) * random() DESC
-        LIMIT $2 OFFSET $3"#,
-        &techs,
-        limit,
-        offset
-    )
-    .fetch_all(pool)
-    .await?;
-    let quests: Vec<Quest> = result.into_iter().map(Quest::from).collect();
-    Ok(Json(SearchQuestResult { total: count, quests }))
+    let is_last_page = offset + quests.len() as i64 >= count;
+    Ok(Json(SearchQuestResult {
+        total: count,
+        is_last_page,
+        quests,
+    }))
 }

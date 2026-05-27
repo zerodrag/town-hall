@@ -6,7 +6,7 @@
   import NavbarPfp from './navbar-pfp.svelte';
   import NavbarQuestButton from './navbar-quest-button.svelte';
 
-  let { me }: { me: User | undefined } = $props();
+  let { me }: { me: User | null } = $props();
 </script>
 
 <nav class="flex items-center py-6">
