@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT q.quest_id, q.title, q.summary, q.details, q.techs,\n        q.status as \"status: QuestStatus\", q.created_at as quest_created_at,\n        u.user_id, u.github_id, u.handle, u.created_at as user_created_at\n        FROM quests q\n        JOIN users u ON u.user_id = q.poster_id\n        WHERE ($1 = '' OR q.title <% $1 OR q.summary <% $1 OR q.title ILIKE $3 OR q.summary ILIKE $3)\n            AND q.techs @> $2\n            AND q.status != 'draft'\n        ORDER BY q.quest_id\n        LIMIT $4 OFFSET $5",
+  "query": "\n        SELECT q.quest_id, q.title, q.summary, q.details, q.techs,\n        q.status as \"status: QuestStatus\", q.created_at as quest_created_at,\n        u.user_id, u.github_id, u.name, u.handle, u.created_at as user_created_at\n        FROM quests q\n        JOIN users u ON u.user_id = q.poster_id\n        WHERE q.quest_id=$1",
   "describe": {
     "columns": [
       {
@@ -61,21 +61,22 @@
       },
       {
         "ordinal": 9,
-        "name": "handle",
+        "name": "name",
         "type_info": "Text"
       },
       {
         "ordinal": 10,
+        "name": "handle",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
         "name": "user_created_at",
         "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": [
-        "Text",
-        "TextArray",
-        "Text",
-        "Int8",
         "Int8"
       ]
     },
@@ -90,8 +91,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "1bf0383fc069eb5ec1938381c018a235504de0c0c97726220c7115a83441669f"
+  "hash": "cc6431993a7b210ece11473e064fee39538e6b051caa28b3625be1ca0c20d04f"
 }

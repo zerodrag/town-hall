@@ -3,4 +3,4 @@
   const user = $derived(data.targetUser);
 </script>
 
-<h1>{user.handle}'s profile page</h1>
+<h1>{user.name}'s profile page</h1>

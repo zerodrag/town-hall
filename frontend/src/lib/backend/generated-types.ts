@@ -25,6 +25,7 @@ export type SearchQuestParams = {
 
 export type SearchQuestResult = {
 	total: string,
+	isLastPage: boolean,
 	quests: Quest[],
 };
 
@@ -39,6 +40,7 @@ export type UpdateQuestRequest = {
 export type User = {
 	userId: string,
 	githubId: string,
+	name: string,
 	handle: string,
 	createdAt: string,
 };

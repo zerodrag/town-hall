@@ -18,7 +18,7 @@ export async function load({ fetch, url }) {
     if (resp.ok) {
       return (await resp.json()) as SearchQuestResult;
     } else {
-      return { total: '0', quests: [] } as SearchQuestResult;
+      return { total: '0', isLastPage: true, quests: [] } as SearchQuestResult;
     }
   });
   return { questsPromise: promise };

@@ -54,6 +54,7 @@ pub struct QuestRow {
 
     pub user_id: i64,
     pub github_id: i64,
+    pub name: String,
     pub handle: String,
     pub user_created_at: time::OffsetDateTime,
 }
@@ -65,6 +66,7 @@ impl From<QuestRow> for Quest {
             poster: User {
                 user_id: value.user_id,
                 github_id: value.github_id,
+                name: value.name,
                 handle: value.handle,
                 created_at: value.user_created_at,
             },
@@ -89,7 +91,7 @@ pub async fn get(
         r#"
         SELECT q.quest_id, q.title, q.summary, q.details, q.techs,
         q.status as "status: QuestStatus", q.created_at as quest_created_at,
-        u.user_id, u.github_id, u.handle, u.created_at as user_created_at
+        u.user_id, u.github_id, u.name, u.handle, u.created_at as user_created_at
         FROM quests q
         JOIN users u ON u.user_id = q.poster_id
         WHERE q.quest_id=$1"#,
@@ -250,7 +252,7 @@ pub async fn discover(
         r#"
         SELECT q.quest_id, q.title, q.summary, q.details, q.techs,
         q.status as "status: QuestStatus", q.created_at as quest_created_at,
-        u.user_id, u.github_id, u.handle, u.created_at as user_created_at
+        u.user_id, u.github_id, u.name, u.handle, u.created_at as user_created_at
         FROM quests q
         JOIN users u ON u.user_id = q.poster_id
         WHERE ($1 = '' OR q.title <% $1 OR q.summary <% $1 OR q.title ILIKE $3 OR q.summary ILIKE $3)

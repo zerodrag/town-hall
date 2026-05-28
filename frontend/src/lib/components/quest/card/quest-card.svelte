@@ -12,7 +12,7 @@
   let author = $derived(quest.poster);
 </script>
 
-<div class="grid w-4xl rounded-3xl bg-card px-4 py-3">
+<div class="grid h-32 w-4xl rounded-3xl bg-card px-4 py-3">
   {#if clickable}
     <a
       class="pointer-events-auto col-start-1 row-start-1"
@@ -32,7 +32,7 @@
           class="pointer-events-auto hover:text-foreground hover:underline"
           href={resolve(`/user/${author.userId}/${author.handle}`)}
         >
-          {author.handle}
+          {author.name}
         </a>
       </div>
     </div>

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT user_id, github_id, handle, created_at\n        FROM users\n        WHERE user_id=$1",
+  "query": "\n        SELECT user_id, github_id, name, handle, created_at\n        FROM users\n        WHERE user_id=$1",
   "describe": {
     "columns": [
       {
@@ -15,11 +15,16 @@
       },
       {
         "ordinal": 2,
-        "name": "handle",
+        "name": "name",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
+        "name": "handle",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
         "name": "created_at",
         "type_info": "Timestamptz"
       }
@@ -33,8 +38,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "edf0ce7ed24a502cc9effb88e5a626f4c1ee451cb83c6451fafc4d22272a5b93"
+  "hash": "ea8f70bdc532d26d1aefadf4487485fc8ef0eb6bff924256dde3ead21033452e"
 }

@@ -84,7 +84,7 @@
       <Button form={searchFormId} type="submit">Search</Button>
     </div>
 
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-3">
       {#await data.questsPromise}
         <Spinner size={100} />
       {:then result}
@@ -100,7 +100,7 @@
       {#await data.questsPromise}
         <Button onclick={nextPage} disabled>Next</Button>
       {:then result}
-        <Button onclick={nextPage} disabled={result.quests.length < limit}>Next</Button>
+        <Button onclick={nextPage} disabled={result.isLastPage}>Next</Button>
       {/await}
     </div>
   </div>

@@ -17,6 +17,7 @@ pub struct User {
     pub user_id: i64,
     #[serde_as(as = "DisplayFromStr")]
     pub github_id: i64,
+    pub name: String,
     pub handle: String,
     #[serde(with = "time::serde::rfc3339")]
     pub created_at: time::OffsetDateTime,
@@ -58,7 +59,7 @@ async fn fetch_from_id(user_id: i64, pool: PgPool) -> crate::BackendResult<Json<
     let result = sqlx::query_as!(
         User,
         r#"
-        SELECT user_id, github_id, handle, created_at
+        SELECT user_id, github_id, name, handle, created_at
         FROM users
         WHERE user_id=$1"#,
         user_id

@@ -82,31 +82,26 @@ pub async fn github_callback(
     #[derive(Deserialize)]
     struct GitHubUser {
         id: i64,
-        name: Option<String>,
-        email: Option<String>,
+        name: String,
+        login: String, // handle
+        email: String,
     }
     let gh_user = gh_user_resp.json::<GitHubUser>().await?;
 
-    let (github_id, handle, email) = (
-        gh_user.id,
-        gh_user
-            .name
-            .ok_or_else(|| BackendError::BadRequest("GitHub user has no name".to_string()))?,
-        gh_user
-            .email
-            .ok_or_else(|| BackendError::BadRequest("GitHub user has no email".to_string()))?,
-    );
+    let (github_id, name, handle, email) = (gh_user.id, gh_user.name, gh_user.login, gh_user.email);
 
     let internal_user_id: i64 = sqlx::query_scalar!(
         r#"
-        INSERT INTO users (github_id, handle, email)
-        VALUES ($1, $2, $3)
+        INSERT INTO users (github_id, name, handle, email)
+        VALUES ($1, $2, $3, $4)
         ON CONFLICT (github_id)
         DO UPDATE SET
+            name = EXCLUDED.name,
             handle = EXCLUDED.handle,
             email = EXCLUDED.email
             RETURNING user_id"#,
         github_id,
+        name,
         handle,
         email
     )
