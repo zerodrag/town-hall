@@ -1,0 +1,51 @@
+<script lang="ts">
+  import DOMPurify from 'isomorphic-dompurify';
+  import { marked } from 'marked';
+
+  let { markdown }: { markdown: string } = $props();
+
+  const escapeHtml = (str: string) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const render = async (markdown: string) => {
+    const escaped = escapeHtml(markdown);
+    return DOMPurify.sanitize(await marked.parse(escaped), {
+      ALLOWED_TAGS: [
+        'p',
+        'br',
+        'hr',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'blockquote',
+        'pre',
+        'code',
+        'strong',
+        'em',
+        'del',
+        'ul',
+        'ol',
+        'li',
+        'table',
+        'thead',
+        'tbody',
+        'tr',
+        'th',
+        'td',
+        'a',
+        'img'
+      ],
+      ALLOWED_ATTR: ['href', 'src', 'alt']
+    });
+  };
+
+  let htmlPromise = $derived(render(markdown));
+</script>
+
+{#await htmlPromise then html}
+  <div class="prose min-h-64 max-w-none rounded-xl border p-10 prose-invert">
+    <!-- eslint-disable svelte/no-at-html-tags -->
+    {@html html}
+  </div>
+{/await}
