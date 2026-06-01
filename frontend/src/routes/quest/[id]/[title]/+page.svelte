@@ -37,11 +37,11 @@
   <Separator />
   <div class="flex gap-3">
     <!-- Details -->
-    <MarkdownRenderer markdown={quest.details} class="max-w-none flex-3 rounded-xl bg-card p-8" />
+    <MarkdownRenderer markdown={quest.details} class="max-w-none flex-3 rounded-xl border bg-card p-8" />
     <!-- Sidebar -->
     <div class="flex-1">
       <!-- Author -->
-      <div class="flex flex-col gap-2 rounded-xl bg-card p-4">
+      <div class="flex flex-col gap-2 rounded-xl border bg-card p-4">
         <div class="text-lg font-bold">Author</div>
         <a
           class="group flex items-center gap-2 transition active:scale-95"

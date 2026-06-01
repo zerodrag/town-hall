@@ -12,7 +12,7 @@
   let author = $derived(quest.poster);
 </script>
 
-<div class="grid h-32 w-4xl rounded-3xl bg-card px-4 py-3 transition has-[>a:active]:scale-95">
+<div class="grid h-32 w-4xl rounded-3xl border bg-card px-4 py-3 transition has-[>a:active]:scale-95">
   {#if clickable}
     <a
       class="pointer-events-auto col-start-1 row-start-1"
