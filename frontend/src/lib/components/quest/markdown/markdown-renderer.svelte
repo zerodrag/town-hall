@@ -44,9 +44,9 @@
   let htmlPromise = $derived(render(markdown));
 </script>
 
-{#await htmlPromise then html}
-  <div class={cn(className, 'prose prose-invert')}>
+<div class={cn(className, 'prose prose-invert')}>
+  {#await htmlPromise then html}
     <!-- eslint-disable svelte/no-at-html-tags -->
     {@html html}
-  </div>
-{/await}
+  {/await}
+</div>

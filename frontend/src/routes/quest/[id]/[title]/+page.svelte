@@ -37,7 +37,7 @@
   <Separator />
   <div class="flex gap-3">
     <!-- Details -->
-    <MarkdownRenderer markdown={quest.details} class="min-h-64 max-w-none flex-3 rounded-xl bg-card p-10" />
+    <MarkdownRenderer markdown={quest.details} class="max-w-none flex-3 rounded-xl bg-card p-8" />
     <!-- Sidebar -->
     <div class="flex-1">
       <!-- Author -->
