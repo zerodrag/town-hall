@@ -7,6 +7,7 @@
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import { Spinner } from '$lib/components/ui/spinner';
+  import { cn } from '$lib/utils';
 
   let dialogOpen = $state(false);
   let createQuestLoading = $state(false);
@@ -36,8 +37,11 @@
 <form id="create-quest-form" onsubmit={create}></form>
 
 <Dialog.Root bind:open={dialogOpen}>
-  <Dialog.Trigger type="button" class={buttonVariants({ variant: 'default' })}>
-    <Plus />New Quest
+  <Dialog.Trigger
+    type="button"
+    class={cn(buttonVariants({ variant: 'outline', size: 'icon' }), 'rounded-3xl select-none')}
+  >
+    <Plus />
   </Dialog.Trigger>
 
   <Dialog.Content class="sm:max-w-106.25">

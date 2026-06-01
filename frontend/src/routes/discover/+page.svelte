@@ -60,10 +60,10 @@
 ></form>
 
 <div class="flex gap-2">
-  <div class="flex-2">
+  <div class="flex-1">
     <TechInput bind:techs runOnInputChange={search} />
   </div>
-  <div class="flex flex-7 flex-col gap-2">
+  <div class="flex flex-3 flex-col gap-2">
     <div class="flex gap-2">
       <Input form={searchFormId} type="text" placeholder="Search quests..." bind:value={query} />
       <DropdownMenu.Root>

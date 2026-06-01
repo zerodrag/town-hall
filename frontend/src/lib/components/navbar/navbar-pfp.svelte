@@ -3,18 +3,15 @@
   import { resolve } from '$app/paths';
   import { BACKEND_URL } from '$lib/backend/common';
   import type { User } from '$lib/backend/generated-types';
-  import * as Avatar from '$lib/components/ui/avatar';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+  import { ProfilePic } from '../pfp';
 
   let { user }: { user: User } = $props();
 </script>
 
 <DropdownMenu.Root>
   <DropdownMenu.Trigger>
-    <Avatar.Root class="cursor-pointer transition hover:brightness-80 active:scale-90">
-      <Avatar.Image src="https://avatars.githubusercontent.com/u/{user.githubId}" alt="@{user.handle}" />
-      <Avatar.Fallback>{user.handle.slice(0, 2).toUpperCase()}</Avatar.Fallback>
-    </Avatar.Root>
+    <ProfilePic {user} class="cursor-pointer transition hover:brightness-80 active:scale-90" />
   </DropdownMenu.Trigger>
   <DropdownMenu.Content sideOffset={10} align="end">
     <DropdownMenu.Label>Account</DropdownMenu.Label>

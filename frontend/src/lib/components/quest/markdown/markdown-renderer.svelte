@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { cn } from '$lib/utils';
   import DOMPurify from 'isomorphic-dompurify';
   import { marked } from 'marked';
 
-  let { markdown }: { markdown: string } = $props();
+  let { markdown, class: className = '' }: { markdown: string; class?: string } = $props();
 
   const escapeHtml = (str: string) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const render = async (markdown: string) => {
@@ -44,7 +45,7 @@
 </script>
 
 {#await htmlPromise then html}
-  <div class="prose min-h-64 max-w-none rounded-xl border p-10 prose-invert">
+  <div class={cn(className, 'prose prose-invert')}>
     <!-- eslint-disable svelte/no-at-html-tags -->
     {@html html}
   </div>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Quest } from '$lib/backend/generated-types.js';
-  import { QuestEditor } from '$lib/components/quest/editor';
   import QuestCard from '$lib/components/quest/card/quest-card.svelte';
+  import { QuestEditor } from '$lib/components/quest/editor';
 
   let { data } = $props();
   let quest = $derived(data.quest);

@@ -12,4 +12,4 @@
   <MarkdownToggle bind:preview />
 </div>
 
-<MarkdownEditor markdown={draft.details} {preview} />
+<MarkdownEditor bind:markdown={draft.details} {preview} />
