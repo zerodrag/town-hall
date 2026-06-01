@@ -43,6 +43,9 @@
     if (!response.ok) {
       saveError = await response.text();
       savingIcon = 'pending';
+      setTimeout(async () => {
+        saveError = '';
+      }, 5000);
       return;
     }
 

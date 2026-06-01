@@ -50,11 +50,14 @@ pub fn techs(techs: &Vec<String>) -> Result<(), ValidationError> {
     for tech in techs {
         if tech.len() > 15 {
             let err = ValidationError::new("tech_invalid_length");
-            return Err(err.with_message("Tech must be no longer than 15 characters".into()));
+            return Err(err.with_message("Techs must be no longer than 15 characters".into()));
         }
-        if !tech.chars().all(|c| c.is_alphanumeric() || c == '-') {
+        if !tech
+            .chars()
+            .all(|c| (c.is_ascii_alphabetic() && c.is_lowercase()) || c.is_ascii_digit() || c == '-')
+        {
             let err = ValidationError::new("tech_invalid_character");
-            return Err(err.with_message("Tech must not contain non-alphanumeric and non-hyphen (-) characters".into()));
+            return Err(err.with_message("Techs can only contain lowercase a-z, 0-9, and hyphens".into()));
         }
     }
     Ok(())
