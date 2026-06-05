@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ChevronLeft, ChevronRight, Search, TextSearch } from '@lucide/svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import QuestCard from '$lib/components/quest/card/quest-card.svelte';
@@ -7,7 +8,6 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import Input from '$lib/components/ui/input/input.svelte';
   import { Spinner } from '$lib/components/ui/spinner';
-    import { ChevronLeft, ChevronRight, Search, TextSearch } from '@lucide/svelte';
 
   let { data } = $props();
 
@@ -99,7 +99,7 @@
       {/await}
     </div>
 
-    <div class="flex justify-end items-center gap-2">
+    <div class="flex items-center justify-end gap-2">
       <Button onclick={prevPage} disabled={currentPage === 1}>
         <ChevronLeft />
       </Button>

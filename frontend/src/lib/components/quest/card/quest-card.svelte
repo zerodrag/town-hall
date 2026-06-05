@@ -12,7 +12,9 @@
   let author = $derived(quest.poster);
 </script>
 
-<div class="grid h-32 rounded-3xl border bg-card px-4 py-3 transition has-[>a:active]:scale-95">
+<div
+  class="group/card grid h-32 rounded-3xl border bg-card px-4 py-3 transition has-[>a:active]:scale-95 has-[>a:hover]:brightness-120"
+>
   {#if clickable}
     <a
       class="pointer-events-auto col-start-1 row-start-1"
@@ -23,7 +25,7 @@
   {/if}
   <div class="pointer-events-none col-start-1 row-start-1">
     <div class="flex items-center gap-2">
-      <div class="text-xl font-semibold">
+      <div class="text-xl font-semibold group-has-[>a:hover]/card:underline">
         {quest.title}
       </div>
       <div class="text-base text-foreground/50">

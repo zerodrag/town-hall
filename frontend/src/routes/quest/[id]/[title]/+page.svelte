@@ -2,10 +2,10 @@
   import { SquarePen } from '@lucide/svelte';
   import { resolve } from '$app/paths';
   import { ProfilePic } from '$lib/components/pfp';
-  import MarkdownRenderer from '$lib/components/quest/markdown/markdown-renderer.svelte';
+  import { MarkdownRenderer } from '$lib/components/quest/markdown';
   import { TechPill } from '$lib/components/quest/techs';
   import { Button } from '$lib/components/ui/button';
-  import Separator from '$lib/components/ui/separator/separator.svelte';
+  import { Separator } from '$lib/components/ui/separator';
   import { slugify } from '$lib/utils';
 
   const { data } = $props();
@@ -34,7 +34,7 @@
       </Button>
     {/if}
   </div>
-  <Separator />
+  <Separator class="mb-2" />
   <div class="flex gap-3">
     <!-- Details -->
     <MarkdownRenderer markdown={quest.details} class="max-w-none flex-3 rounded-xl border bg-card p-8" />
@@ -49,7 +49,7 @@
         >
           <ProfilePic class="h-6 w-6 " user={quest.poster} />
           <div class="transition group-hover:underline">{quest.poster.name}</div>
-          <div class="flex text-foreground/50">
+          <div class="text-foreground/50">
             @{quest.poster.handle}
           </div>
         </a>

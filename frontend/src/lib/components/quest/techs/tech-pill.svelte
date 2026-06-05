@@ -8,7 +8,7 @@
 <span
   class={cn(
     className,
-    'flex cursor-pointer items-center rounded-xl border bg-primary/20 px-2.5 py-0.5 text-sm font-medium text-primary transition select-none active:scale-90'
+    'flex cursor-pointer items-center rounded-xl border bg-primary/20 px-2.5 py-0.5 text-sm font-medium text-primary transition select-none hover:brightness-120 active:scale-90'
   )}
 >
   {tech}

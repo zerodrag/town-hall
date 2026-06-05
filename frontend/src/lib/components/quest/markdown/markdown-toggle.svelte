@@ -6,7 +6,7 @@
 </script>
 
 <Toggle
-  class="w-24 transition active:scale-95"
+  class="w-24 cursor-pointer transition active:scale-95"
   aria-label="Toggle markdown preview"
   variant="outline"
   size="sm"
