@@ -60,7 +60,7 @@ async fn main() -> Result<()> {
     )
     .await?;
     let session_layer = session_layer(state.db_pool.clone()).await?;
-    let cors_layer = cors_layer(&args.frontend_url).await?;
+    let cors_layer = cors_layer(&args.frontend_url)?;
 
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", args.backend_port)).await?;
     let app = router::root()
@@ -99,7 +99,7 @@ async fn session_layer(db_pool: PgPool) -> Result<SessionManagerLayer<PostgresSt
 }
 
 use tower_http::cors::CorsLayer;
-async fn cors_layer(frontend_url: &String) -> Result<CorsLayer> {
+fn cors_layer(frontend_url: &String) -> Result<CorsLayer> {
     use http::{HeaderValue, Method, header};
 
     let layer = CorsLayer::new()

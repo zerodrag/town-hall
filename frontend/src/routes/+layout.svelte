@@ -10,7 +10,7 @@
 </script>
 
 <svelte:head>
-  <title>Town Hall</title>
+  <title>GFP</title>
   <link rel="icon" href={favicon} />
 </svelte:head>
 

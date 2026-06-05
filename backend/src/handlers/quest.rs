@@ -155,13 +155,13 @@ pub async fn create(
 #[derive(specta::Type, Validate, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateQuestRequest {
-    #[validate(length(min = 1, max = 100))]
+    #[validate(length(min = 1, max = 70))]
     #[specta(optional)]
     pub title: Option<String>,
-    #[validate(length(max = 300))]
+    #[validate(length(min = 1, max = 150))]
     #[specta(optional)]
     pub summary: Option<String>,
-    #[validate(length(max = 10000))]
+    #[validate(length(min = 1, max = 10000))]
     #[specta(optional)]
     pub details: Option<String>,
     #[specta(optional)]

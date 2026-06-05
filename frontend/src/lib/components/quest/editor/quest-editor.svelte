@@ -63,15 +63,14 @@
 
   const updateFormId = 'update-quest-form';
 
-  const listStyle = 'flex flex-2 flex-col gap-2 self-start rounded-3xl bg-card p-3';
   const triggerStyle = cn(navButtonStyle(), 'flex h-10 gap-2 px-4 text-lg font-medium');
-  const contentStyle = 'flex flex-7 flex-col gap-4 self-start rounded-3xl bg-card p-6';
+  const contentStyle = 'flex flex-7 flex-col gap-4 self-start rounded-3xl border bg-card p-6';
 </script>
 
 <form id={updateFormId} onsubmit={update}></form>
 
 <Tabs.Root value="card" orientation="vertical" class="flex gap-6">
-  <Tabs.List class={listStyle}>
+  <Tabs.List class="flex flex-2 flex-col gap-2 self-start rounded-3xl border bg-card p-3">
     <Tabs.Trigger value="card" class={triggerStyle}>
       <IdCard size={20} /> Card
     </Tabs.Trigger>

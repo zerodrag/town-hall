@@ -7,6 +7,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import Input from '$lib/components/ui/input/input.svelte';
   import { Spinner } from '$lib/components/ui/spinner';
+    import { ChevronLeft, ChevronRight, Search, TextSearch } from '@lucide/svelte';
 
   let { data } = $props();
 
@@ -61,7 +62,7 @@
 
 <div class="flex gap-2">
   <div class="flex-1">
-    <TechInput bind:techs runOnInputChange={search} />
+    <TechInput bind:techs onInputChange={search} />
   </div>
   <div class="flex flex-3 flex-col gap-2">
     <div class="flex gap-2">
@@ -69,7 +70,9 @@
       <DropdownMenu.Root>
         <DropdownMenu.Trigger>
           {#snippet child({ props })}
-            <Button {...props} variant="outline">View</Button>
+            <Button {...props} variant="outline">
+              <TextSearch />View
+            </Button>
           {/snippet}
         </DropdownMenu.Trigger>
         <DropdownMenu.Content class="max-w-4">
@@ -81,7 +84,9 @@
           </DropdownMenu.RadioGroup>
         </DropdownMenu.Content>
       </DropdownMenu.Root>
-      <Button form={searchFormId} type="submit">Search</Button>
+      <Button form={searchFormId} type="submit">
+        <Search />Search
+      </Button>
     </div>
 
     <div class="flex flex-col gap-3">
@@ -94,13 +99,19 @@
       {/await}
     </div>
 
-    <div>
-      <Button onclick={prevPage} disabled={currentPage === 1}>Previous</Button>
+    <div class="flex justify-end items-center gap-2">
+      <Button onclick={prevPage} disabled={currentPage === 1}>
+        <ChevronLeft />
+      </Button>
       <span>Page {currentPage}</span>
       {#await data.questsPromise}
-        <Button onclick={nextPage} disabled>Next</Button>
+        <Button onclick={nextPage} disabled>
+          <ChevronRight />
+        </Button>
       {:then result}
-        <Button onclick={nextPage} disabled={result.isLastPage}>Next</Button>
+        <Button onclick={nextPage} disabled={result.isLastPage}>
+          <ChevronRight />
+        </Button>
       {/await}
     </div>
   </div>

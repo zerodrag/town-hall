@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { SiGithub } from '@icons-pack/svelte-simple-icons';
   import { resolve } from '$app/paths';
   import { BACKEND_URL } from '$lib/backend/common';
   import type { User } from '$lib/backend/generated-types';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { ProfilePic } from '../pfp';
+  import { LogOut, Settings, User as UserIcon } from '@lucide/svelte';
 
   let { user }: { user: User } = $props();
 </script>
@@ -17,27 +17,24 @@
     <DropdownMenu.Label>Account</DropdownMenu.Label>
     <DropdownMenu.Item>
       {#snippet child({ props })}
-        <a {...props} href={resolve(`/user/${user.userId}/${user.handle}`)}>Profile</a>
+        <a {...props} href={resolve(`/user/${user.userId}/${user.handle}`)}>
+          <UserIcon />Profile
+        </a>
       {/snippet}
     </DropdownMenu.Item>
     <DropdownMenu.Item>
       {#snippet child({ props })}
-        <a {...props} href={resolve('/settings')}>Settings</a>
-      {/snippet}
-    </DropdownMenu.Item>
-    <DropdownMenu.Separator />
-    <DropdownMenu.Label>Links</DropdownMenu.Label>
-    <DropdownMenu.Item>
-      {#snippet child({ props })}
-        <a {...props} href="https://github.com/zerodrag/town-hall">
-          <SiGithub />GitHub
+        <a {...props} href={resolve('/settings')}>
+          <Settings />Settings
         </a>
       {/snippet}
     </DropdownMenu.Item>
     <DropdownMenu.Separator />
     <DropdownMenu.Item variant="destructive">
       {#snippet child({ props })}
-        <a {...props} href="{BACKEND_URL}/auth/logout">Sign out</a>
+        <a {...props} href="{BACKEND_URL}/auth/logout">
+          <LogOut />Sign out
+        </a>
       {/snippet}
     </DropdownMenu.Item>
   </DropdownMenu.Content>

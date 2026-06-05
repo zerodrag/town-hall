@@ -39,9 +39,9 @@
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger
     type="button"
-    class={cn(buttonVariants({ variant: 'outline', size: 'icon' }), 'rounded-3xl select-none')}
+    class={cn(buttonVariants({ variant: 'outline' }), 'rounded-xl select-none')}
   >
-    <Plus />
+    <Plus /> New Quest
   </Dialog.Trigger>
 
   <Dialog.Content class="sm:max-w-106.25">

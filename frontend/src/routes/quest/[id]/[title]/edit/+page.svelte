@@ -13,7 +13,7 @@
 
 <div class="flex flex-col gap-2">
   <div class="flex justify-center">
-    <QuestCard quest={draft} />
+    <QuestCard quest={draft} clickable />
   </div>
   <QuestEditor {quest} {draft} />
 </div>

@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit';
+import type { PageLoad } from './$types';
 
-export const load = async ({ parent }) => {
+export const load: PageLoad = async ({ parent }) => {
   const { quest, me } = await parent();
   // If not logged in
   if (!me) {
