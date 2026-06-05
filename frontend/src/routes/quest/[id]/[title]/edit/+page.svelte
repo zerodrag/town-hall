@@ -12,7 +12,7 @@
 </script>
 
 <div class="flex flex-col gap-2">
-  <div class="flex justify-center">
+  <div class="mx-auto w-3/4">
     <QuestCard quest={draft} clickable />
   </div>
   <QuestEditor {quest} {draft} />

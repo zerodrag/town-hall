@@ -1,19 +1,23 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import type { Quest } from '$lib/backend/generated-types';
-  import { slugify } from '$lib/utils';
+  import { cn, slugify } from '$lib/utils';
   import TechPill from '../techs/tech-pill.svelte';
 
   let {
+    class: className,
     quest,
     addTech,
     clickable = false
-  }: { quest: Quest; addTech?: (tech: string) => void; clickable?: boolean } = $props();
+  }: { class?: string; quest: Quest; addTech?: (tech: string) => void; clickable?: boolean } = $props();
   let author = $derived(quest.poster);
 </script>
 
 <div
-  class="group/card grid h-32 rounded-3xl border bg-card px-4 py-3 transition has-[>a:active]:scale-95 has-[>a:hover]:brightness-120"
+  class={cn(
+    className,
+    'group/card grid min-h-32 rounded-3xl border bg-card px-4 py-3 transition has-[>a:active]:scale-95 has-[>a:hover]:brightness-120'
+  )}
 >
   {#if clickable}
     <a
@@ -41,7 +45,7 @@
     <div class="line-clamp-2 h-13 text-base leading-snug text-foreground/70">
       {quest.summary}
     </div>
-    <div class="flex gap-1">
+    <div class="flex flex-wrap gap-1">
       {#each quest.techs as tech (tech)}
         <button class="pointer-events-auto" onclick={() => addTech?.(tech)}> <TechPill {tech} /></button>
       {/each}
