@@ -866,6 +866,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "gfp-backend"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "clap",
+ "dotenvy",
+ "http",
+ "itertools",
+ "oauth2",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "specta",
+ "specta-typescript",
+ "sqlx",
+ "thiserror 2.0.18",
+ "time",
+ "tokio",
+ "tower-http",
+ "tower-sessions",
+ "tower-sessions-sqlx-store",
+ "tracing",
+ "tracing-subscriber",
+ "validator",
+]
+
+[[package]]
 name = "h2"
 version = "0.4.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2976,35 +3005,6 @@ dependencies = [
  "thiserror 1.0.69",
  "time",
  "tower-sessions-core",
-]
-
-[[package]]
-name = "town-hall-backend"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "clap",
- "dotenvy",
- "http",
- "itertools",
- "oauth2",
- "reqwest",
- "serde",
- "serde_json",
- "serde_with",
- "specta",
- "specta-typescript",
- "sqlx",
- "thiserror 2.0.18",
- "time",
- "tokio",
- "tower-http",
- "tower-sessions",
- "tower-sessions-sqlx-store",
- "tracing",
- "tracing-subscriber",
- "validator",
 ]
 
 [[package]]
