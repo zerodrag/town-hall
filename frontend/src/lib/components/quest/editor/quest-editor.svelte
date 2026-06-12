@@ -38,7 +38,7 @@
 
     if (!editsMade) return;
 
-    const response = await updateQuest(quest.questId, draftDelta);
+    const response = await updateQuest(fetch, quest.questId, draftDelta);
 
     if (!response.ok) {
       saveError = await response.text();

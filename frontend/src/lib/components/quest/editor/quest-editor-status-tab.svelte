@@ -8,7 +8,7 @@
   let { quest, editsMade }: { quest: Quest; editsMade: boolean } = $props();
 
   const publish = async () => {
-    const response = await updateQuest(quest.questId, { status: 'ongoing' });
+    const response = await updateQuest(fetch, quest.questId, { status: 'ongoing' });
     if (response.ok) {
       await invalidate(`${BACKEND_URL}/quests/${quest.questId}`);
     }

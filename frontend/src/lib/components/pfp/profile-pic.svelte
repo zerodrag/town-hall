@@ -6,6 +6,6 @@
 </script>
 
 <Avatar.Root class={className}>
-  <Avatar.Image src={`https://github.com/${user.handle}.png`} alt="@{user.handle}" />
+  <Avatar.Image src={`https://avatars.githubusercontent.com/u/${user.githubId}`} alt="@{user.handle}" />
   <Avatar.Fallback>{user.handle.slice(0, 2).toUpperCase()}</Avatar.Fallback>
 </Avatar.Root>

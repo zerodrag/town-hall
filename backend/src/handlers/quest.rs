@@ -12,7 +12,7 @@ use validator::Validate;
 use crate::{
     AppState, BackendError, BackendResult,
     handlers::{
-        common,
+        common::{self},
         normvalid::{self, NormValid},
         user::User,
     },
@@ -123,6 +123,70 @@ pub async fn get(
     Err(BackendError::NotFound("Quest".to_string()))
 }
 
+#[derive(Deserialize, Validate, specta::Type)]
+#[serde(rename_all = "camelCase")]
+pub struct GetUserQuestParams {
+    #[validate(range(min = 1))]
+    pub page: Option<u32>,
+    #[validate(range(min = 1))]
+    pub limit: Option<u32>,
+}
+
+#[derive(Serialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
+pub struct GetUserQuestResult {
+    pub total: i64,
+    pub is_last_page: bool,
+    pub quests: Vec<Quest>,
+}
+
+#[axum::debug_handler]
+pub async fn get_from_user(
+    Path(user_id): Path<i64>,
+    State(state): State<AppState>,
+    NormValid(Json(params)): NormValid<Json<GetUserQuestParams>>,
+) -> BackendResult<Json<GetUserQuestResult>> {
+    let page = params.page.unwrap_or(1) as i64;
+    let limit = params.limit.unwrap_or(20) as i64;
+    let offset = (page - 1) * limit;
+    let total = query_scalar!(
+        r#"
+        SELECT COUNT(*)
+        FROM quests
+        WHERE poster_id=$1
+            AND status != 'draft'"#,
+        user_id,
+    )
+    .fetch_one(&state.db_pool)
+    .await?
+    .unwrap_or(0);
+    let result = query_as!(
+        QuestRow,
+        r#"
+        SELECT q.quest_id, q.title, q.summary, q.details, q.techs,
+        q.status as "status: QuestStatus", q.created_at as quest_created_at,
+        u.user_id, u.github_id, u.name, u.handle, u.created_at as user_created_at
+        FROM quests q
+        JOIN users u ON u.user_id = q.poster_id
+        WHERE q.poster_id=$1
+            AND q.status != 'draft'
+        LIMIT $2 OFFSET $3"#,
+        user_id,
+        limit,
+        offset
+    )
+    .fetch_all(&state.db_pool)
+    .await?;
+
+    let quests: Vec<Quest> = result.into_iter().map(|q| q.into()).collect();
+    let is_last_page = offset + quests.len() as i64 >= total;
+    return Ok(Json(GetUserQuestResult {
+        total,
+        is_last_page,
+        quests,
+    }));
+}
+
 #[derive(specta::Type, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateQuestRequest {
@@ -205,7 +269,7 @@ pub async fn update(
 
 #[derive(Deserialize, Validate, specta::Type)]
 #[serde(rename_all = "camelCase")]
-pub struct SearchQuestParams {
+pub struct DiscoverQuestParams {
     pub query: Option<String>,
     #[validate(custom(function = "normvalid::techs"))]
     pub techs: Option<Vec<String>>,
@@ -217,7 +281,7 @@ pub struct SearchQuestParams {
 
 #[derive(Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
-pub struct SearchQuestResult {
+pub struct DiscoverQuestResult {
     pub total: i64,
     pub is_last_page: bool,
     pub quests: Vec<Quest>,
@@ -225,8 +289,8 @@ pub struct SearchQuestResult {
 
 pub async fn discover(
     State(state): State<AppState>,
-    NormValid(Json(params)): NormValid<Json<SearchQuestParams>>,
-) -> BackendResult<Json<SearchQuestResult>> {
+    NormValid(Json(params)): NormValid<Json<DiscoverQuestParams>>,
+) -> BackendResult<Json<DiscoverQuestResult>> {
     let techs = params.techs.clone().unwrap_or_default();
     let page = params.page.unwrap_or(1) as i64;
     let limit = params.limit.unwrap_or(20) as i64;
@@ -268,9 +332,9 @@ pub async fn discover(
     )
     .fetch_all(&state.db_pool)
     .await?;
-    let quests: Vec<Quest> = result.into_iter().map(Quest::from).collect();
+    let quests: Vec<Quest> = result.into_iter().map(|q| q.into()).collect();
     let is_last_page = offset + quests.len() as i64 >= count;
-    Ok(Json(SearchQuestResult {
+    Ok(Json(DiscoverQuestResult {
         total: count,
         is_last_page,
         quests,

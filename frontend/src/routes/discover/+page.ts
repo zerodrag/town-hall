@@ -1,13 +1,14 @@
-import type { SearchQuestParams, SearchQuestResult } from '$lib/backend/generated-types.js';
+import type { DiscoverQuestParams, DiscoverQuestResult } from '$lib/backend/generated-types.js';
 import { discoverQuests } from '$lib/backend/quest';
+import type { PageLoad } from './$types';
 
-export async function load({ fetch, url }) {
+export const load: PageLoad = async ({ fetch, url }) => {
   const query = url.searchParams.get('query');
   const page = url.searchParams.get('page');
   const limit = url.searchParams.get('limit');
   const techs = url.searchParams.getAll('techs');
 
-  const params: SearchQuestParams = {
+  const params: DiscoverQuestParams = {
     query: query || null,
     page: page ? parseInt(page, 10) : null,
     limit: limit ? parseInt(limit, 10) : null,
@@ -16,10 +17,10 @@ export async function load({ fetch, url }) {
 
   const promise = discoverQuests(fetch, params).then(async (resp) => {
     if (resp.ok) {
-      return (await resp.json()) as SearchQuestResult;
+      return (await resp.json()) as DiscoverQuestResult;
     } else {
-      return { total: '0', isLastPage: true, quests: [] } as SearchQuestResult;
+      return { total: '0', isLastPage: true, quests: [] } as DiscoverQuestResult;
     }
   });
   return { questsPromise: promise };
-}
+};

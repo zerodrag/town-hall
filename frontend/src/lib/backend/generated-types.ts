@@ -3,6 +3,30 @@ export type CreateQuestRequest = {
 	title: string,
 };
 
+export type DiscoverQuestParams = {
+	query: string | null,
+	techs: string[] | null,
+	page: number | null,
+	limit: number | null,
+};
+
+export type DiscoverQuestResult = {
+	total: string,
+	isLastPage: boolean,
+	quests: Quest[],
+};
+
+export type GetUserQuestParams = {
+	page: number | null,
+	limit: number | null,
+};
+
+export type GetUserQuestResult = {
+	total: string,
+	isLastPage: boolean,
+	quests: Quest[],
+};
+
 export type Quest = {
 	questId: string,
 	poster: User,
@@ -15,19 +39,6 @@ export type Quest = {
 };
 
 export type QuestStatus = "draft" | "ongoing" | "solved";
-
-export type SearchQuestParams = {
-	query: string | null,
-	techs: string[] | null,
-	page: number | null,
-	limit: number | null,
-};
-
-export type SearchQuestResult = {
-	total: string,
-	isLastPage: boolean,
-	quests: Quest[],
-};
 
 export type UpdateQuestRequest = {
 	title?: string | null,

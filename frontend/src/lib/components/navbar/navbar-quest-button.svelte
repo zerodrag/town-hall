@@ -19,7 +19,7 @@
     questError = '';
     createQuestLoading = true;
 
-    const resp = await createQuest({ title: questTitle });
+    const resp = await createQuest(fetch, { title: questTitle });
 
     if (!resp.ok) {
       questError = await resp.text();
@@ -37,10 +37,7 @@
 <form id="create-quest-form" onsubmit={create}></form>
 
 <Dialog.Root bind:open={dialogOpen}>
-  <Dialog.Trigger
-    type="button"
-    class={cn(buttonVariants({ variant: 'outline' }), 'rounded-xl select-none')}
-  >
+  <Dialog.Trigger type="button" class={cn(buttonVariants({ variant: 'outline' }), 'rounded-xl select-none')}>
     <Plus /> New Quest
   </Dialog.Trigger>
 

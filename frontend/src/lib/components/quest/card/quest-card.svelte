@@ -1,6 +1,7 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import type { Quest } from '$lib/backend/generated-types';
+  import * as Tooltip from '$lib/components/ui/tooltip';
   import { cn, slugify } from '$lib/utils';
   import TechPill from '../techs/tech-pill.svelte';
 
@@ -46,9 +47,25 @@
       {quest.summary}
     </div>
     <div class="flex flex-wrap gap-1">
-      {#each quest.techs as tech (tech)}
+      {#each quest.techs.slice(0, 5) as tech (tech)}
         <button class="pointer-events-auto" onclick={() => addTech?.(tech)}> <TechPill {tech} /></button>
       {/each}
+      {#if quest.techs.length > 5}
+        <Tooltip.Provider>
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <TechPill class="pointer-events-auto" tech={`+${quest.techs.length - 5}`} />
+            </Tooltip.Trigger>
+            <Tooltip.Content class="border bg-background shadow-2xl" arrowClasses="bg-background shadow-2xl">
+              {#each quest.techs.slice(5) as tech (tech)}
+                <button class="pointer-events-auto" onclick={() => addTech?.(tech)}>
+                  <TechPill class="bg-muted" {tech} /></button
+                >
+              {/each}
+            </Tooltip.Content>
+          </Tooltip.Root>
+        </Tooltip.Provider>
+      {/if}
     </div>
   </div>
 </div>

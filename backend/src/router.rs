@@ -36,7 +36,8 @@ async fn quests() -> Result<Router<AppState>> {
     let router = Router::new()
         .route("/", post(quest::create))
         .route("/{id}", get(quest::get))
-        .route("/{id}", patch(quest::update));
+        .route("/{id}", patch(quest::update))
+        .route("/user/{user_id}", post(quest::get_from_user));
     Ok(router)
 }
 

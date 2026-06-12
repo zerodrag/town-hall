@@ -4,8 +4,12 @@ use validator::ValidationError;
 use crate::handlers::{
     common,
     normvalid::Normalize,
-    quest::{CreateQuestRequest, SearchQuestParams, UpdateQuestRequest},
+    quest::{CreateQuestRequest, DiscoverQuestParams, GetUserQuestParams, UpdateQuestRequest},
 };
+
+impl Normalize for GetUserQuestParams {
+    fn normalize(&mut self) {}
+}
 
 impl Normalize for CreateQuestRequest {
     fn normalize(&mut self) {
@@ -25,7 +29,7 @@ impl Normalize for UpdateQuestRequest {
     }
 }
 
-impl Normalize for SearchQuestParams {
+impl Normalize for DiscoverQuestParams {
     fn normalize(&mut self) {
         if let Some(query) = self.query.as_mut() {
             *query = common::trim_whitespace(query);
